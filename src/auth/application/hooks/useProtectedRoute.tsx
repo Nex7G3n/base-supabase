@@ -16,7 +16,7 @@ export function useProtectedRoute(options: UseProtectedRouteOptions = {}) {
     allowedRoles,
     requireAuth = true,
   } = options;
-  
+
   const { user, loading } = useAuth();
   const router = useRouter();
 

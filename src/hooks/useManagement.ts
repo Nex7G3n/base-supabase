@@ -64,15 +64,15 @@ export function usePermissions() {
 
   // Verificar si el usuario es administrador
   const isAdmin = useCallback((): boolean => {
-    return hasAnyPermission(['super_admin', 'admin']) || 
-           hasModulePermission('users', 'create') ||
-           hasModulePermission('roles', 'create');
+    return hasAnyPermission(['super_admin', 'admin']) ||
+      hasModulePermission('users', 'create') ||
+      hasModulePermission('roles', 'create');
   }, [hasAnyPermission, hasModulePermission]);
 
   // Verificar si el usuario es super administrador
   const isSuperAdmin = useCallback((): boolean => {
-    return hasPermission('super_admin') || 
-           hasModulePermission('permissions', 'delete');
+    return hasPermission('super_admin') ||
+      hasModulePermission('permissions', 'delete');
   }, [hasPermission, hasModulePermission]);
 
   return {

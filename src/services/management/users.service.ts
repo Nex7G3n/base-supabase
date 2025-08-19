@@ -1,11 +1,11 @@
 import { supabase } from '../../common/supabaseClient';
-import { 
-  User, 
-  CreateUserRequest, 
-  UpdateUserRequest, 
-  UserFilters, 
+import {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserFilters,
   PaginatedResponse,
-  ApiResponse 
+  ApiResponse
 } from '../../types/management.types';
 
 export class UserManagementService {
@@ -13,8 +13,8 @@ export class UserManagementService {
    * Obtener lista paginada de usuarios
    */
   static async getUsers(
-    page: number = 1, 
-    limit: number = 10, 
+    page: number = 1,
+    limit: number = 10,
     filters?: UserFilters
   ): Promise<PaginatedResponse<User>> {
     try {
@@ -232,7 +232,7 @@ export class UserManagementService {
     try {
       const { error } = await supabase
         .from('users')
-        .update({ 
+        .update({
           is_active: false,
           updated_at: new Date().toISOString()
         })
@@ -262,7 +262,7 @@ export class UserManagementService {
     try {
       // Obtener el usuario actual que asigna los roles
       const { data: currentUser } = await supabase.auth.getUser();
-      
+
       // Primero eliminar roles existentes
       await supabase
         .from('user_roles')

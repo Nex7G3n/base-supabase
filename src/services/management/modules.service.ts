@@ -1,9 +1,9 @@
 import { supabase } from '../../common/supabaseClient';
-import { 
-  Module, 
-  CreateModuleRequest, 
-  UpdateModuleRequest, 
-  ModuleFilters, 
+import {
+  Module,
+  CreateModuleRequest,
+  UpdateModuleRequest,
+  ModuleFilters,
   PaginatedResponse,
   ApiResponse,
   MenuItem
@@ -14,8 +14,8 @@ export class ModuleManagementService {
    * Obtener lista paginada de módulos
    */
   static async getModules(
-    page: number = 1, 
-    limit: number = 10, 
+    page: number = 1,
+    limit: number = 10,
     filters?: ModuleFilters
   ): Promise<PaginatedResponse<Module>> {
     try {
@@ -88,7 +88,7 @@ export class ModuleManagementService {
       // Construir jerarquía
       data?.forEach(module => {
         const moduleWithChildren = modulesMap.get(module.id)!;
-        
+
         if (module.parent_id) {
           const parent = modulesMap.get(module.parent_id);
           if (parent) {
@@ -226,7 +226,7 @@ export class ModuleManagementService {
 
       const { error } = await supabase
         .from('modules')
-        .update({ 
+        .update({
           is_active: false,
           updated_at: new Date().toISOString()
         })
@@ -317,7 +317,7 @@ export class ModuleManagementService {
         ur.roles?.role_permissions?.forEach((rp: any) => {
           const permission = rp.permissions;
           const module = permission.modules;
-          
+
           if (permission.action === 'read' && module.is_active) {
             if (!moduleIds.has(module.id)) {
               moduleIds.add(module.id);
@@ -340,10 +340,10 @@ export class ModuleManagementService {
   static async generateUserNavigation(userId: string): Promise<MenuItem[]> {
     try {
       const modules = await this.getUserAccessibleModules(userId);
-      
+
       // Obtener permisos específicos del usuario
       const userPermissions = await this.getUserModulePermissions(userId);
-      
+
       const menuItems: MenuItem[] = modules.map(module => ({
         id: module.id,
         label: module.name,
@@ -392,11 +392,11 @@ export class ModuleManagementService {
         ur.roles?.role_permissions?.forEach((rp: any) => {
           const permission = rp.permissions;
           const moduleId = permission.module_id;
-          
+
           if (!modulePermissions[moduleId]) {
             modulePermissions[moduleId] = [];
           }
-          
+
           if (!modulePermissions[moduleId].includes(permission.name)) {
             modulePermissions[moduleId].push(permission.name);
           }
@@ -415,7 +415,7 @@ export class ModuleManagementService {
    */
   static async reorderModules(moduleOrders: { id: string; sort_order: number }[]): Promise<ApiResponse<void>> {
     try {
-      const updates = moduleOrders.map(({ id, sort_order }) => 
+      const updates = moduleOrders.map(({ id, sort_order }) =>
         supabase
           .from('modules')
           .update({ sort_order, updated_at: new Date().toISOString() })
@@ -467,7 +467,7 @@ export class ModuleManagementService {
 
       // Construir la estructura jerárquica
       const rootModules: Module[] = [];
-      
+
       moduleMap.forEach(module => {
         if (module.parent_id && moduleMap.has(module.parent_id)) {
           const parent = moduleMap.get(module.parent_id);

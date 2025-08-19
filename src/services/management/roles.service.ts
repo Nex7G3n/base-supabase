@@ -1,9 +1,9 @@
 import { supabase } from '../../common/supabaseClient';
-import { 
-  Role, 
-  CreateRoleRequest, 
-  UpdateRoleRequest, 
-  RoleFilters, 
+import {
+  Role,
+  CreateRoleRequest,
+  UpdateRoleRequest,
+  RoleFilters,
   PaginatedResponse,
   ApiResponse,
   Permission,
@@ -15,8 +15,8 @@ export class RoleManagementService {
    * Obtener lista paginada de roles
    */
   static async getRoles(
-    page: number = 1, 
-    limit: number = 10, 
+    page: number = 1,
+    limit: number = 10,
     filters?: RoleFilters
   ): Promise<PaginatedResponse<Role>> {
     try {
@@ -198,7 +198,7 @@ export class RoleManagementService {
 
       const { error } = await supabase
         .from('roles')
-        .update({ 
+        .update({
           is_active: false,
           updated_at: new Date().toISOString()
         })
