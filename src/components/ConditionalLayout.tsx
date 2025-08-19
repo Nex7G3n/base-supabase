@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState, useAuthInit } from '../auth';
 import { PageSkeleton } from './ui/skeleton';
-import Sidebar from './Sidebar';
+import Sidebar from '../common/components/Sidebar';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;

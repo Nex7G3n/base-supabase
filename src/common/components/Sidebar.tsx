@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  ChevronDownIcon, 
+import {
+  ChevronDownIcon,
   ChevronRightIcon,
   HomeIcon,
   UserGroupIcon,
@@ -13,9 +13,9 @@ import {
   ChartBarIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
-import { useAuthState } from '../auth';
-import { ModuleManagementService } from '../services/management/modules.service';
-import { Module } from '../auth/domain/types/auth.interfaces';
+import { useAuthState } from '../../auth';
+import { ModuleManagementService } from '../../services/management/modules.service';
+import { Module } from '../../auth/domain/types/auth.interfaces';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -50,11 +50,11 @@ const moduleIcons: Record<string, React.ComponentType<any>> = {
 const ModuleItem: React.FC<ModuleItemProps> = ({ module, level, isActive, onItemClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasChildren = module.children && module.children.length > 0;
-  
+
   // Obtener el icono apropiado
-  const IconComponent = moduleIcons[module.name.toLowerCase()] || 
-                       moduleIcons[module.icon?.toLowerCase() || ''] || 
-                       DocumentTextIcon;
+  const IconComponent = moduleIcons[module.name.toLowerCase()] ||
+    moduleIcons[module.icon?.toLowerCase() || ''] ||
+    DocumentTextIcon;
 
   const handleClick = () => {
     if (hasChildren) {
@@ -69,12 +69,12 @@ const ModuleItem: React.FC<ModuleItemProps> = ({ module, level, isActive, onItem
   return (
     <div>
       {module.path && !hasChildren ? (
-        <Link 
+        <Link
           href={module.path}
           className={`
             flex items-center w-full px-4 py-3 text-sm font-medium text-left transition-colors duration-200
-            ${isActive 
-              ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
+            ${isActive
+              ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
               : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
             }
           `}
@@ -89,8 +89,8 @@ const ModuleItem: React.FC<ModuleItemProps> = ({ module, level, isActive, onItem
           onClick={handleClick}
           className={`
             flex items-center w-full px-4 py-3 text-sm font-medium text-left transition-colors duration-200
-            ${isActive 
-              ? 'bg-blue-50 text-blue-700' 
+            ${isActive
+              ? 'bg-blue-50 text-blue-700'
               : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
             }
           `}
@@ -109,7 +109,7 @@ const ModuleItem: React.FC<ModuleItemProps> = ({ module, level, isActive, onItem
           )}
         </button>
       )}
-      
+
       {hasChildren && isExpanded && (
         <div className="bg-gray-25">
           {module.children?.map((child) => (
@@ -157,21 +157,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
     try {
       setLoading(true);
-      
+
       // Intentar obtener módulos del usuario con permisos
       let userModules = await ModuleManagementService.getUserAccessibleModules(user.id);
-      
+
       // Si no hay módulos específicos, obtener módulos básicos
       if (userModules.length === 0) {
         console.log('No se encontraron módulos con permisos, cargando módulos básicos...');
         userModules = await ModuleManagementService.getModulesTree();
-        
+
         // Si tampoco hay módulos en la BD, crear módulos por defecto
         if (userModules.length === 0) {
           userModules = getDefaultModules();
         }
       }
-      
+
       setModules(userModules);
       setLastUserId(user.id);
     } catch (error) {
@@ -215,12 +215,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     if (module.path && pathname === module.path) {
       return true;
     }
-    
+
     // Verificar si algún hijo está activo
     if (module.children) {
       return module.children.some(child => isModuleActive(child));
     }
-    
+
     return false;
   };
 
@@ -228,12 +228,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <>
       {/* Overlay para móvil */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-gray-600 bg-opacity-50 z-20 lg:hidden"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
@@ -248,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </div>
             <span className="ml-2 text-lg font-semibold text-gray-900">App</span>
           </div>
-          
+
           {/* Botón cerrar para móvil */}
           <button
             onClick={onClose}
@@ -298,7 +298,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </p>
             </div>
           </div>
-          
+
           <Link
             href="/logout"
             className="mt-3 w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-md hover:bg-gray-100 transition-colors duration-200"
