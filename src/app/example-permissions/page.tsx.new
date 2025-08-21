@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useAuthSimple } from '@/auth/application/hooks/useAuthSimple';
+import { useAuth } from '@/auth';
 
 /**
  * Página de ejemplo que muestra cómo usar los permisos y módulos
@@ -22,11 +22,27 @@ export default function ExamplePage() {
     isAdmin,
     isSuperAdmin,
     
+    // Funciones CRUD
+    canCreate,
+    canRead,
+    canUpdate,
+    canDelete,
+    
+    // Funciones específicas
+    canManageUsers,
+    canManageRoles,
+    canManagePermissions,
+    canAccessDashboard,
+    
+    // Funciones de módulos
+    getModulePermissions,
+    getActiveModules,
+    
     // Funciones de utilidad
+    reloadPermissions,
     getUserName,
-    getUserInitials,
-    debug
-  } = useAuthSimple();
+    getUserInitials
+  } = useAuth();
 
   if (loading) {
     return (
@@ -38,12 +54,6 @@ export default function ExamplePage() {
             <div className="h-4 bg-gray-200 rounded w-5/6"></div>
             <div className="h-4 bg-gray-200 rounded w-4/6"></div>
           </div>
-        </div>
-        <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
-          <h3 className="font-medium text-yellow-800">Debug Info:</h3>
-          <pre className="text-xs mt-2 text-yellow-700">
-            {JSON.stringify(debug, null, 2)}
-          </pre>
         </div>
       </div>
     );
@@ -92,9 +102,12 @@ export default function ExamplePage() {
             <h2 className="text-lg font-semibold text-gray-900">
               Estado de Permisos
             </h2>
-            <div className="text-sm text-gray-600">
-              Estado: {permissionsLoaded ? 'Cargados' : 'No cargados'}
-            </div>
+            <button
+              onClick={() => reloadPermissions(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Recargar Permisos
+            </button>
           </div>
           <div className="mt-2 text-sm text-gray-600">
             <span className={`px-2 py-1 rounded ${permissionsLoaded ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>

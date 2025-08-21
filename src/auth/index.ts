@@ -8,8 +8,9 @@ export { GoogleAuthService } from './application/services/google.service';
 export { RoleService } from './application/services/role.service';
 export { PermissionService } from './application/services/permission.service';
 
-// Exportar store de Zustand
+// Exportar stores de Zustand
 export { useAuthStore } from './application/store/auth.store';
+export { usePermissionsStore, usePermissions } from './application/store/permissions.store';
 
 // Exportar hooks personalizados
 export {
@@ -19,6 +20,11 @@ export {
   useRedirectIfAuthenticated,
   useAuthInit
 } from './application/hooks/useAuth';
+
+// Exportar hook principal combinado
+export {
+  useAuth
+} from './application/hooks/useAuthComplete';
 
 // Exportar componentes
 export { ProtectedComponent, useCanShow } from './application/components/ProtectedComponent';

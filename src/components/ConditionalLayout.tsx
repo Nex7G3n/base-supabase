@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useAuthState, useAuthInit } from '../auth';
+import { useAuthSimple } from '../auth/application/hooks/useAuthSimple';
 import { PageSkeleton } from './ui/skeleton';
 import Sidebar from '../common/components/Sidebar';
 
@@ -12,14 +12,27 @@ interface ConditionalLayoutProps {
 const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Inicializar autenticación
-  useAuthInit();
-  
-  // Obtener estado de autenticación
-  const { user, loading, isInitialized } = useAuthState();
+  // Usar el hook simplificado de autenticación que maneja todo
+  const { 
+    user, 
+    loading, 
+    isInitialized, 
+    isAuthenticated,
+    getUserName,
+    getUserInitials,
+    debug
+  } = useAuthSimple();
 
-  // Calcular isAuthenticated
-  const isAuthenticated = !!user;
+  // Log para debugging
+  useEffect(() => {
+    console.log('🔄 ConditionalLayout - Estado:', {
+      user: !!user,
+      loading,
+      isInitialized,
+      isAuthenticated,
+      debug
+    });
+  }, [user, loading, isInitialized, isAuthenticated, debug]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -70,13 +83,13 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
             {/* Información del usuario */}
             <div className="flex items-center space-x-4">
               <div className="hidden md:flex items-center text-sm text-gray-600">
-                <span>Hola, {user?.first_name || user?.email?.split('@')[0]}</span>
+                <span>Hola, {getUserName()}</span>
               </div>
               
               {/* Avatar del usuario */}
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
-                  {user?.first_name?.[0] || user?.email?.[0] || 'U'}
+                  {getUserInitials()}
                 </span>
               </div>
             </div>
