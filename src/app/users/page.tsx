@@ -5,6 +5,8 @@ import { useUserManagement, useRoleManagement } from '../../hooks/useManagement'
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
+import { DataTable } from '../../components/ui/data-table';
+import { createUserColumns } from './columns';
 import { User, Role } from '../../types/management.types';
 
 export default function UsersPage() {
@@ -100,6 +102,12 @@ export default function UsersPage() {
     }
   };
 
+  // Crear las columnas de la tabla
+  const columns = createUserColumns({
+    onEdit: (user: User) => setSelectedUser(user),
+    onDelete: handleDeleteUser
+  });
+
   return (
     <ProtectedRoute permissions={['users_read']}>
       <div className="p-6">
@@ -121,20 +129,7 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* Búsqueda */}
-        <div className="mb-6">
-          <div className="max-w-md">
-            <Input
-              type="text"
-              placeholder="Buscar usuarios..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        {/* Lista de usuarios */}
+        {/* Búsqueda y tabla de usuarios */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -146,94 +141,13 @@ export default function UsersPage() {
                 Lista de Usuarios ({users.length})
               </h3>
             </div>
-            
-            <div className="divide-y divide-gray-200">
-              {users.length === 0 ? (
-                <div className="px-6 py-8 text-center">
-                  <p className="text-gray-500">No se encontraron usuarios</p>
-                </div>
-              ) : (
-                users.map((user) => (
-                  <div key={user.id} className="px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-700">
-                            {user.first_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.first_name} {user.last_name}
-                          </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                          <div className="text-xs text-gray-400">
-                            {user.user_roles?.map(ur => ur.role?.name).join(', ') || 'Sin rol'}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {user.is_active ? 'Activo' : 'Inactivo'}
-                        </span>
-                        
-                        <ProtectedComponent permissions={['users_update']}>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => setSelectedUser(user)}
-                          >
-                            Editar
-                          </Button>
-                        </ProtectedComponent>
-                        
-                        <ProtectedComponent permissions={['users_delete']}>
-                          <Button 
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
-                          >
-                            Eliminar
-                          </Button>
-                        </ProtectedComponent>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Paginación */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center">
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-              >
-                Anterior
-              </Button>
-              
-              <span className="px-4 py-2 text-sm text-gray-700">
-                Página {currentPage} de {totalPages}
-              </span>
-              
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Siguiente
-              </Button>
+            <div className="p-6">
+              <DataTable 
+                columns={columns} 
+                data={users} 
+                searchKey="email"
+                searchPlaceholder="Buscar por email..."
+              />
             </div>
           </div>
         )}

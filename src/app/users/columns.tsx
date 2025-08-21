@@ -63,11 +63,11 @@ export const createUserColumns = ({ onEdit, onDelete }: UserColumnsProps): Colum
     header: "Roles",
     cell: ({ row }) => {
       const user = row.original;
-      const roles = user.user_roles?.map(ur => ur.role?.name).filter(Boolean) || [];
+      const roles = user.user_roles?.map((ur: any) => ur.role?.name).filter(Boolean) || [];
       return (
         <div className="flex flex-wrap gap-1">
           {roles.length > 0 ? (
-            roles.map((role, index) => (
+            roles.map((role: any, index: number) => (
               <span
                 key={index}
                 className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
