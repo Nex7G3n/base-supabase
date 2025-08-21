@@ -510,4 +510,36 @@ export class ModuleManagementService {
       return [];
     }
   }
+
+  /**
+   * Activar/Desactivar un módulo
+   */
+  static async toggleModuleStatus(id: string, is_active: boolean): Promise<ApiResponse<Module>> {
+    try {
+      const { data, error } = await supabase
+        .from('modules')
+        .update({
+          is_active,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Error al cambiar estado del módulo: ${error.message}`);
+      }
+
+      return {
+        success: true,
+        data,
+        message: `Módulo ${is_active ? 'activado' : 'desactivado'} exitosamente`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      };
+    }
+  }
 }

@@ -263,18 +263,18 @@ export class RoleManagementService {
   /**
    * Obtener permisos de un rol
    */
-  static async getRolePermissions(roleId: string): Promise<Permission[]> {
+  static async getRolePermissions(roleId: string): Promise<ApiResponse<any[]>> {
     try {
       const { data, error } = await supabase
         .from('role_permissions')
         .select(`
-          permissions!inner (
+          *,
+          permission:permissions (
             id,
             name,
             description,
             action,
-            is_active,
-            modules!inner (
+            module:modules (
               id,
               name,
               description
@@ -288,13 +288,15 @@ export class RoleManagementService {
         throw new Error(`Error al obtener permisos del rol: ${error.message}`);
       }
 
-      return data?.map((rp: any) => ({
-        ...rp.permissions,
-        module: rp.permissions.modules
-      })) || [];
+      return {
+        success: true,
+        data: data || []
+      };
     } catch (error) {
-      console.error('Error en getRolePermissions:', error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      };
     }
   }
 
@@ -390,6 +392,81 @@ export class RoleManagementService {
     } catch (error) {
       console.error('Error en getRoleUsers:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Activar/Desactivar un rol
+   */
+  static async toggleRoleStatus(id: string, is_active: boolean): Promise<ApiResponse<Role>> {
+    try {
+      const { data, error } = await supabase
+        .from('roles')
+        .update({
+          is_active,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Error al cambiar estado del rol: ${error.message}`);
+      }
+
+      return {
+        success: true,
+        data,
+        message: `Rol ${is_active ? 'activado' : 'desactivado'} exitosamente`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      };
+    }
+  }
+
+  /**
+   * Asignar permisos a un rol
+   */
+  static async assignPermissionsToRole(
+    roleId: string, 
+    permissionIds: string[]
+  ): Promise<ApiResponse<void>> {
+    try {
+      // Primero eliminar permisos existentes
+      await supabase
+        .from('role_permissions')
+        .delete()
+        .eq('role_id', roleId);
+
+      // Insertar nuevos permisos
+      if (permissionIds.length > 0) {
+        const rolePermissions = permissionIds.map(permissionId => ({
+          role_id: roleId,
+          permission_id: permissionId,
+          granted: true
+        }));
+
+        const { error } = await supabase
+          .from('role_permissions')
+          .insert(rolePermissions);
+
+        if (error) {
+          throw new Error(`Error al asignar permisos: ${error.message}`);
+        }
+      }
+
+      return {
+        success: true,
+        message: 'Permisos asignados exitosamente'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Error desconocido'
+      };
     }
   }
 }

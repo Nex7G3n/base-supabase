@@ -36,6 +36,11 @@ const moduleIcons: Record<string, React.ComponentType<any>> = {
   'usuarios': UserGroupIcon,
   'user': UserGroupIcon,
   'users': UserGroupIcon,
+  'roles': UserGroupIcon,
+  'permisos': CogIcon,
+  'permissions': CogIcon,
+  'modulos': BuildingOfficeIcon,
+  'modules': BuildingOfficeIcon,
   'perfil': UserIcon,
   'profile': UserIcon,
   'configuracion': CogIcon,
@@ -212,15 +217,64 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         updated_at: new Date().toISOString()
       },
       {
-        id: 'users',
-        name: 'Usuarios',
-        description: 'Gestión de usuarios',
-        path: '/users',
-        icon: 'users',
+        id: 'administration',
+        name: 'Administración',
+        description: 'Módulo de administración del sistema',
+        icon: 'settings',
         is_active: true,
         sort_order: 2,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        children: [
+          {
+            id: 'users',
+            name: 'Usuarios',
+            description: 'Gestión de usuarios',
+            path: '/users',
+            icon: 'users',
+            is_active: true,
+            parent_id: 'administration',
+            sort_order: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'roles',
+            name: 'Roles',
+            description: 'Gestión de roles',
+            path: '/roles',
+            icon: 'roles',
+            is_active: true,
+            parent_id: 'administration',
+            sort_order: 1,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'permissions',
+            name: 'Permisos',
+            description: 'Gestión de permisos',
+            path: '/permissions',
+            icon: 'permissions',
+            is_active: true,
+            parent_id: 'administration',
+            sort_order: 2,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'modules',
+            name: 'Módulos',
+            description: 'Gestión de módulos',
+            path: '/modules',
+            icon: 'modules',
+            is_active: true,
+            parent_id: 'administration',
+            sort_order: 3,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]
       }
     ];
   };

@@ -247,6 +247,60 @@ export interface PermissionFilters {
 }
 
 // ============================================================================
+// TIPOS PARA CREACIÓN Y ACTUALIZACIÓN
+// ============================================================================
+
+export interface CreateRoleRequest {
+  name: string;
+  description?: string;
+  is_active?: boolean;
+  is_default?: boolean;
+}
+
+export interface UpdateRoleRequest {
+  name?: string;
+  description?: string;
+  is_active?: boolean;
+  is_default?: boolean;
+}
+
+export interface CreatePermissionRequest {
+  name: string;
+  description?: string;
+  module_id?: string;
+  action: 'create' | 'read' | 'update' | 'delete' | 'execute';
+  is_active?: boolean;
+}
+
+export interface UpdatePermissionRequest {
+  name?: string;
+  description?: string;
+  module_id?: string;
+  action?: 'create' | 'read' | 'update' | 'delete' | 'execute';
+  is_active?: boolean;
+}
+
+export interface CreateModuleRequest {
+  name: string;
+  description?: string;
+  path?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+export interface UpdateModuleRequest {
+  name?: string;
+  description?: string;
+  path?: string;
+  icon?: string;
+  parent_id?: string;
+  sort_order?: number;
+  is_active?: boolean;
+}
+
+// ============================================================================
 // TIPOS PARA NAVEGACIÓN Y MENÚS
 // ============================================================================
 

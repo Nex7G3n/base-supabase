@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { UserManagementService } from '../services/management/users.service';
 import { RoleManagementService } from '../services/management/roles.service';
 import { ModuleManagementService } from '../services/management/modules.service';
+import { PermissionManagementService } from '../services/management/permissions.service';
 import { useAuthState } from '../auth';
 
 export function usePermissions() {
@@ -261,6 +262,48 @@ export function useRoleManagement() {
     }
   }, []);
 
+  const toggleRoleStatus = useCallback(async (id: string, isActive: boolean) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await RoleManagementService.toggleRoleStatus(id, isActive);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getRolePermissions = useCallback(async (roleId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await RoleManagementService.getRolePermissions(roleId);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const assignPermissionsToRole = useCallback(async (roleId: string, permissionIds: string[]) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await RoleManagementService.assignPermissionsToRole(roleId, permissionIds);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     error,
@@ -269,7 +312,10 @@ export function useRoleManagement() {
     createRole,
     updateRole,
     deleteRole,
-    assignPermissions
+    assignPermissions,
+    toggleRoleStatus,
+    getRolePermissions,
+    assignPermissionsToRole
   };
 }
 
@@ -333,12 +379,241 @@ export function useModuleManagement() {
     }
   }, []);
 
+  const getAllActiveModules = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.getAllActiveModules();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createModule = useCallback(async (moduleData: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.createModule(moduleData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateModule = useCallback(async (id: string, moduleData: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.updateModule(id, moduleData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteModule = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.deleteModule(id);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const toggleModuleStatus = useCallback(async (id: string, isActive: boolean) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.toggleModuleStatus(id, isActive);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const reorderModules = useCallback(async (moduleOrders: { id: string; sort_order: number }[]) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await ModuleManagementService.reorderModules(moduleOrders);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     loading,
     error,
     getModules,
     getModulesHierarchy,
     getUserAccessibleModules,
-    generateUserNavigation
+    generateUserNavigation,
+    getAllActiveModules,
+    createModule,
+    updateModule,
+    deleteModule,
+    toggleModuleStatus,
+    reorderModules
+  };
+}
+
+// ============================================================================
+// HOOK PARA GESTIÓN DE PERMISOS
+// ============================================================================
+
+export function usePermissionManagement() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getPermissions = useCallback(async (page = 1, limit = 10, filters?: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.getPermissions(page, limit, filters);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getPermissionById = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.getPermissionById(id);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createPermission = useCallback(async (permissionData: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.createPermission(permissionData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updatePermission = useCallback(async (id: string, permissionData: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.updatePermission(id, permissionData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deletePermission = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.deletePermission(id);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const togglePermissionStatus = useCallback(async (id: string, isActive: boolean) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.togglePermissionStatus(id, isActive);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getAllActivePermissions = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.getAllActivePermissions();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getPermissionsByModule = useCallback(async (moduleId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      return await PermissionManagementService.getPermissionsByModule(moduleId);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getAvailableActions = useCallback(() => {
+    return PermissionManagementService.getAvailableActions();
+  }, []);
+
+  return {
+    loading,
+    error,
+    getPermissions,
+    getPermissionById,
+    createPermission,
+    updatePermission,
+    deletePermission,
+    togglePermissionStatus,
+    getAllActivePermissions,
+    getPermissionsByModule,
+    getAvailableActions
   };
 }
