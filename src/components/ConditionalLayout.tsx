@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthSimple } from '../auth/application/hooks/useAuthSimple';
 import { PageSkeleton } from './ui/skeleton';
 import Sidebar from '../common/components/Sidebar';
+import UserMenu from './UserMenu';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -81,17 +82,8 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
             </div>
 
             {/* Información del usuario */}
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center text-sm text-gray-600">
-                <span>Hola, {getUserName()}</span>
-              </div>
-              
-              {/* Avatar del usuario */}
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {getUserInitials()}
-                </span>
-              </div>
+            <div className="flex items-center">
+              <UserMenu />
             </div>
           </div>
         </header>
@@ -112,6 +104,7 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
       '/': 'Inicio',
       '/dashboard': 'Dashboard',
       '/users': 'Usuarios',
+      '/profile': 'Mi Perfil',
       '/config/roles': 'Roles',
       '/config/permissions': 'Permisos',
       '/config/modules': 'Módulos',

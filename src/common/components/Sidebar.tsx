@@ -11,7 +11,8 @@ import {
   CogIcon,
   DocumentTextIcon,
   ChartBarIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import { useAuthState } from '../../auth';
 import { ModuleManagementService } from '../../services/management/modules.service';
@@ -35,6 +36,8 @@ const moduleIcons: Record<string, React.ComponentType<any>> = {
   'usuarios': UserGroupIcon,
   'user': UserGroupIcon,
   'users': UserGroupIcon,
+  'perfil': UserIcon,
+  'profile': UserIcon,
   'configuracion': CogIcon,
   'config': CogIcon,
   'settings': CogIcon,
@@ -198,13 +201,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         updated_at: new Date().toISOString()
       },
       {
+        id: 'profile',
+        name: 'Mi Perfil',
+        description: 'Configuración de perfil',
+        path: '/profile',
+        icon: 'profile',
+        is_active: true,
+        sort_order: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
         id: 'users',
         name: 'Usuarios',
         description: 'Gestión de usuarios',
         path: '/users',
         icon: 'users',
         is_active: true,
-        sort_order: 1,
+        sort_order: 2,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
@@ -283,21 +297,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Footer del sidebar */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center">
+          <Link href="/profile" className="flex items-center p-2 rounded-md hover:bg-gray-50 transition-colors duration-200">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-gray-600 text-sm font-medium">
-                {user?.first_name?.[0] || user?.email?.[0] || 'U'}
-              </span>
+              {user?.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt="Avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-600 text-sm font-medium">
+                  {user?.first_name?.[0] || user?.email?.[0] || 'U'}
+                </span>
+              )}
             </div>
             <div className="ml-3 flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
                 {user?.first_name || user?.email?.split('@')[0] || 'Usuario'}
               </p>
               <p className="text-xs text-gray-500 truncate">
-                {user?.email}
+                Ver perfil
               </p>
             </div>
-          </div>
+          </Link>
 
           <Link
             href="/logout"
