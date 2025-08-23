@@ -1,7 +1,6 @@
 "use client";
 import { useAuthState } from "../auth";
 import { Button } from "../components/ui/button";
-import { PageSkeleton, LoginSkeleton } from "../components/ui/skeleton";
 import Link from "next/link";
 
 export default function Home() {
@@ -10,7 +9,17 @@ export default function Home() {
 
   // Mostrar skeleton mientras carga
   if (loading) {
-    return <PageSkeleton isAuthenticated={isAuthenticated} />;
+    return (
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-6" />
+            <div className="h-10 bg-gray-200 rounded w-32 mx-auto" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Si está autenticado, mostrar contenido con el layout global

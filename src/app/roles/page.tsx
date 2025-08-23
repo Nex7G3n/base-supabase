@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { DataTable } from '../../components/ui/data-table';
+import { TableSkeleton } from '../../components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -41,10 +42,14 @@ export default function RolesPage() {
   
   const { getAllActivePermissions } = usePermissionManagement();
 
+  // Separar efectos para evitar múltiples cargas
   useEffect(() => {
     loadRoles();
-    loadPermissions();
   }, [currentPage, searchTerm]);
+
+  useEffect(() => {
+    loadPermissions();
+  }, []); // Solo cargar permisos una vez al montar el componente
 
   const loadRoles = async () => {
     try {
@@ -161,11 +166,11 @@ export default function RolesPage() {
   }
 
   return (
-    <ProtectedRoute requiredPermissions={['roles.read']}>
+    <ProtectedRoute permissions={['roles.read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Roles</h1>
-          <ProtectedComponent requiredPermissions={['roles.create']}>
+          <ProtectedComponent permissions={['roles.create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Rol
             </Button>
@@ -192,11 +197,14 @@ export default function RolesPage() {
         </Card>
 
         {/* Tabla */}
-        <DataTable
-          columns={columns}
-          data={roles}
-          loading={loading}
-        />
+        {loading && roles.length === 0 ? (
+          <TableSkeleton rows={5} columns={5} />
+        ) : (
+          <DataTable
+            columns={columns}
+            data={roles}
+          />
+        )}
 
         {/* Paginación */}
         {totalPages > 1 && (

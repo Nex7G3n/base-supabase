@@ -7,6 +7,7 @@ import { EmailAuthService } from '../services/email.service';
 import { GoogleAuthService } from '../services/google.service';
 import { AuthenticationService } from '../services/auth.service';
 import { PermissionService } from '../services/permission.service';
+import { CacheService } from '../services/cache.service';
 import { usePermissionsStore } from './permissions.store';
 
 interface AuthStore {
@@ -51,9 +52,9 @@ export const useAuthStore = create<AuthStore>()(
           const user = await EmailAuthService.signIn(email, password);
 
           if (user) {
-            // Cargar permisos del usuario
+            // Cargar permisos del usuario solo si no están en caché válido
             const permissionsStore = usePermissionsStore.getState();
-            await permissionsStore.loadUserPermissions(user.id);
+            await permissionsStore.loadUserPermissions(user.id, false); // false = no forzar recarga
 
             set({
               user,
@@ -84,9 +85,9 @@ export const useAuthStore = create<AuthStore>()(
           const user = await EmailAuthService.signUp(email, password);
 
           if (user) {
-            // Cargar permisos del usuario
+            // Cargar permisos del usuario solo si no están en caché válido
             const permissionsStore = usePermissionsStore.getState();
-            await permissionsStore.loadUserPermissions(user.id);
+            await permissionsStore.loadUserPermissions(user.id, false); // false = no forzar recarga
 
             set({
               user,
@@ -129,12 +130,19 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         try {
+          const { user } = get();
           set({ loading: true });
+          
           await AuthenticationService.signOut();
           
           // Limpiar permisos al hacer logout
           const permissionsStore = usePermissionsStore.getState();
           permissionsStore.clearPermissions();
+          
+          // Limpiar caché del usuario
+          if (user) {
+            CacheService.invalidateUserCache(user.id);
+          }
           
           set({
             user: null,
@@ -154,15 +162,20 @@ export const useAuthStore = create<AuthStore>()(
 
         // Evitar múltiples llamadas simultáneas
         if (state.isCheckingAuth) {
+          // Esperar a que termine la verificación actual
+          let attempts = 0;
+          while (get().isCheckingAuth && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
           return;
         }
 
-        // Si ya está inicializado y tenemos un usuario, solo verificar permisos
+        // Si ya está inicializado y tenemos un usuario, solo verificar permisos si es necesario
         if (state.isInitialized && state.user) {
-          // Refrescar permisos si es necesario
           const permissionsStore = usePermissionsStore.getState();
           if (permissionsStore.isPermissionExpired()) {
-            await permissionsStore.loadUserPermissions(state.user.id, true);
+            await permissionsStore.refreshIfNeeded(state.user.id);
           }
           return;
         }
@@ -180,9 +193,9 @@ export const useAuthStore = create<AuthStore>()(
           const user = await Promise.race([authCheck, timeout]);
 
           if (user) {
-            // Cargar permisos del usuario
+            // Cargar permisos del usuario solo si no están en caché válido
             const permissionsStore = usePermissionsStore.getState();
-            await permissionsStore.loadUserPermissions(user.id);
+            await permissionsStore.loadUserPermissions(user.id, false); // false = no forzar recarga
           } else {
             // Limpiar permisos si no hay usuario
             const permissionsStore = usePermissionsStore.getState();
@@ -242,13 +255,20 @@ export const useAuthStore = create<AuthStore>()(
         const { user } = get();
         if (!user) return false;
         
-        // Primero verificar de forma síncrona
         const permissionsStore = usePermissionsStore.getState();
-        if (permissionsStore.isLoaded) {
+        
+        // Si los permisos están cargados y no han expirado, usar caché
+        if (permissionsStore.isLoaded && !permissionsStore.isPermissionExpired()) {
           return permissionsStore.hasModuleAccess(modulePath);
         }
         
-        // Si no están cargados, usar el servicio directo
+        // Si los permisos están expirados, recargar
+        if (permissionsStore.isPermissionExpired()) {
+          await permissionsStore.refreshIfNeeded(user.id);
+          return permissionsStore.hasModuleAccess(modulePath);
+        }
+        
+        // Como último recurso, usar el servicio directo
         return await PermissionService.userHasModuleAccess(user.id, modulePath);
       }
     }),

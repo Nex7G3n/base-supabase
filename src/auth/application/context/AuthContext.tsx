@@ -1,8 +1,8 @@
 "use client";
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { AuthUser } from '../../domain/types/auth.interfaces';
-import { PermissionService } from '../services/permission.service';
 import { useAuthStore } from '../store/auth.store';
+import { usePermissionsStore } from '../store/permissions.store';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -22,7 +22,19 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { user, loading, checkAuth, logout } = useAuthStore();
+  const { 
+    user, 
+    loading, 
+    checkAuth, 
+    logout, 
+    hasPermission: authHasPermission,
+    hasRole,
+    hasAnyRole,
+    hasModuleAccess,
+    isInitialized
+  } = useAuthStore();
+
+  const { hasPermission: permissionsHasPermission } = usePermissionsStore();
 
   const refreshUser = async () => {
     await checkAuth();
@@ -32,30 +44,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await logout();
   };
 
+  // Usar la función de permisos del store de permisos (más optimizada)
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
-    return user.permissions.includes(permission);
-  };
-
-  const hasRole = (roleName: string): boolean => {
-    if (!user) return false;
-    return user.roles.some(role => role.name === roleName);
-  };
-
-  const hasAnyRole = (roleNames: string[]): boolean => {
-    if (!user) return false;
-    return user.roles.some(role => roleNames.includes(role.name));
-  };
-
-  const hasModuleAccess = async (modulePath: string): Promise<boolean> => {
-    if (!user) return false;
-    return await PermissionService.userHasModuleAccess(user.id, modulePath);
+    // Priorizar el store de permisos si está cargado
+    const permissionsStore = usePermissionsStore.getState();
+    if (permissionsStore.isLoaded) {
+      return permissionsHasPermission(permission);
+    }
+    // Fallback al store de auth
+    return authHasPermission(permission);
   };
 
   useEffect(() => {
-    // Solo inicializar una vez al montar el provider
-    checkAuth();
-  }, []);
+    // Solo inicializar una vez al montar el provider y si no está ya inicializado
+    if (!isInitialized) {
+      checkAuth();
+    }
+  }, [checkAuth, isInitialized]);
 
   const value: AuthContextType = {
     user,

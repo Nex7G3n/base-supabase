@@ -9,6 +9,7 @@ import {
   Permission,
   AssignPermissionRequest
 } from '../../types/management.types';
+import { ManagementCacheService } from './cache.service';
 
 export class RoleManagementService {
   /**
@@ -19,6 +20,13 @@ export class RoleManagementService {
     limit: number = 10,
     filters?: RoleFilters
   ): Promise<PaginatedResponse<Role>> {
+    // Verificar caché primero
+    const cacheKey = ManagementCacheService.getRolesCacheKey(page, limit, filters);
+    const cachedData = ManagementCacheService.get<PaginatedResponse<Role>>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     try {
       let query = supabase
         .from('roles')
@@ -45,13 +53,18 @@ export class RoleManagementService {
         throw new Error(`Error al obtener roles: ${error.message}`);
       }
 
-      return {
+      const result: PaginatedResponse<Role> = {
         data: data || [],
         total: count || 0,
         page,
         limit,
         totalPages: Math.ceil((count || 0) / limit)
       };
+
+      // Guardar en caché
+      ManagementCacheService.set(cacheKey, result);
+
+      return result;
     } catch (error) {
       console.error('Error en getRoles:', error);
       throw error;
@@ -62,6 +75,13 @@ export class RoleManagementService {
    * Obtener todos los roles activos (para selects)
    */
   static async getAllActiveRoles(): Promise<Role[]> {
+    // Verificar caché primero
+    const cacheKey = ManagementCacheService.getAllActiveRolesCacheKey();
+    const cachedData = ManagementCacheService.get<Role[]>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     try {
       const { data, error } = await supabase
         .from('roles')
@@ -73,7 +93,12 @@ export class RoleManagementService {
         throw new Error(`Error al obtener roles activos: ${error.message}`);
       }
 
-      return data || [];
+      const result = data || [];
+
+      // Guardar en caché por más tiempo (15 minutos) ya que son datos relativamente estáticos
+      ManagementCacheService.set(cacheKey, result, 15 * 60 * 1000);
+
+      return result;
     } catch (error) {
       console.error('Error en getAllActiveRoles:', error);
       throw error;
@@ -129,6 +154,9 @@ export class RoleManagementService {
         await this.assignPermissions(data.id, roleData.permission_ids);
       }
 
+      // Invalidar caché de roles
+      ManagementCacheService.invalidateRolesCache();
+
       return {
         success: true,
         data,
@@ -161,6 +189,9 @@ export class RoleManagementService {
       if (error) {
         throw new Error(`Error al actualizar rol: ${error.message}`);
       }
+
+      // Invalidar caché de roles
+      ManagementCacheService.invalidateRolesCache();
 
       return {
         success: true,
@@ -208,6 +239,9 @@ export class RoleManagementService {
         throw new Error(`Error al eliminar rol: ${error.message}`);
       }
 
+      // Invalidar caché de roles
+      ManagementCacheService.invalidateRolesCache();
+
       return {
         success: true,
         message: 'Rol eliminado exitosamente'
@@ -246,6 +280,9 @@ export class RoleManagementService {
       if (error) {
         throw new Error(`Error al asignar permisos: ${error.message}`);
       }
+
+      // Invalidar caché de roles
+      ManagementCacheService.invalidateRolesCache();
 
       return {
         success: true,
@@ -413,6 +450,9 @@ export class RoleManagementService {
       if (error) {
         throw new Error(`Error al cambiar estado del rol: ${error.message}`);
       }
+
+      // Invalidar caché de roles
+      ManagementCacheService.invalidateRolesCache();
 
       return {
         success: true,

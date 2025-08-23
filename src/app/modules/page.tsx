@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { DataTable } from '../../components/ui/data-table';
+import { TableSkeleton } from '../../components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '../../components/ui/dialog';
 import { createModuleColumns } from './columns';
 import { Module } from '../../types/management.types';
@@ -40,10 +40,15 @@ export default function ModulesPage() {
     error 
   } = useModuleManagement();
 
+  // Cargar módulos cuando cambien los filtros
   useEffect(() => {
     loadModules();
-    loadParentModules();
   }, [currentPage, searchTerm, selectedParent]);
+
+  // Cargar módulos padre solo una vez al montar el componente
+  useEffect(() => {
+    loadParentModules();
+  }, []);
 
   const loadModules = async () => {
     try {
@@ -151,11 +156,11 @@ export default function ModulesPage() {
   }
 
   return (
-    <ProtectedRoute requiredPermissions={['modules.read']}>
+    <ProtectedRoute permissions={['modules.read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Módulos</h1>
-          <ProtectedComponent requiredPermissions={['modules.create']}>
+          <ProtectedComponent permissions={['modules.create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Módulo
             </Button>
@@ -208,10 +213,14 @@ export default function ModulesPage() {
         </Card>
 
         {/* Tabla */}
-        <DataTable
-          columns={columns}
-          data={modules}
-        />
+        {loading && modules.length === 0 ? (
+          <TableSkeleton rows={5} columns={6} />
+        ) : (
+          <DataTable
+            columns={columns}
+            data={modules}
+          />
+        )}
 
         {/* Paginación */}
         {totalPages > 1 && (

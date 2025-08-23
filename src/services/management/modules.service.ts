@@ -316,12 +316,12 @@ export class ModuleManagementService {
       userPermissions?.forEach((ur: any) => {
         ur.roles?.role_permissions?.forEach((rp: any) => {
           const permission = rp.permissions;
-          const module = permission.modules;
+          const moduleData = permission.modules;
 
-          if (permission.action === 'read' && module.is_active) {
-            if (!moduleIds.has(module.id)) {
-              moduleIds.add(module.id);
-              modulesMap.set(module.id, module);
+          if (permission.action === 'read' && moduleData.is_active) {
+            if (!moduleIds.has(moduleData.id)) {
+              moduleIds.add(moduleData.id);
+              modulesMap.set(moduleData.id, moduleData);
             }
           }
         });

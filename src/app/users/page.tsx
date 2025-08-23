@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { DataTable } from '../../components/ui/data-table';
+import { TableSkeleton } from '../../components/ui/skeleton';
 import { createUserColumns } from './columns';
 import { User, Role } from '../../types/management.types';
 
@@ -21,29 +22,15 @@ export default function UsersPage() {
   const { getUsers, createUser, updateUser, deleteUser, assignRoles, loading, error } = useUserManagement();
   const { getAllActiveRoles } = useRoleManagement();
 
-  // Cargar datos solo cuando sea necesario
+  // Cargar usuarios cuando cambie la página o búsqueda
   useEffect(() => {
-    let mounted = true;
-    
-    const loadData = async () => {
-      if (!mounted) return;
-      
-      try {
-        await Promise.all([
-          loadUsers(),
-          loadRoles()
-        ]);
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      mounted = false;
-    };
+    loadUsers();
   }, [currentPage, searchTerm]);
+
+  // Cargar roles solo una vez al montar el componente
+  useEffect(() => {
+    loadRoles();
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -142,12 +129,16 @@ export default function UsersPage() {
               </h3>
             </div>
             <div className="p-6">
-              <DataTable 
-                columns={columns} 
-                data={users} 
-                searchKey="email"
-                searchPlaceholder="Buscar por email..."
-              />
+              {loading && users.length === 0 ? (
+                <TableSkeleton rows={5} columns={6} />
+              ) : (
+                <DataTable 
+                  columns={columns} 
+                  data={users} 
+                  searchKey="email"
+                  searchPlaceholder="Buscar por email..."
+                />
+              )}
             </div>
           </div>
         )}

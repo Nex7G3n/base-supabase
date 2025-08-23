@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { DataTable } from '../../components/ui/data-table';
+import { TableSkeleton } from '../../components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -43,10 +44,15 @@ export default function PermissionsPage() {
 
   const availableActions = getAvailableActions();
 
+  // Cargar permisos cuando cambien los filtros
   useEffect(() => {
     loadPermissions();
-    loadModules();
   }, [currentPage, searchTerm, selectedModule, selectedAction]);
+
+  // Cargar módulos solo una vez al montar el componente
+  useEffect(() => {
+    loadModules();
+  }, []);
 
   const loadPermissions = async () => {
     try {
@@ -149,11 +155,11 @@ export default function PermissionsPage() {
   }
 
   return (
-    <ProtectedRoute requiredPermissions={['permissions.read']}>
+    <ProtectedRoute permissions={['permissions.read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Permisos</h1>
-          <ProtectedComponent requiredPermissions={['permissions.create']}>
+          <ProtectedComponent permissions={['permissions.create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Permiso
             </Button>
@@ -220,10 +226,14 @@ export default function PermissionsPage() {
         </Card>
 
         {/* Tabla */}
-        <DataTable
-          columns={columns}
-          data={permissions}
-        />
+        {loading && permissions.length === 0 ? (
+          <TableSkeleton rows={5} columns={5} />
+        ) : (
+          <DataTable
+            columns={columns}
+            data={permissions}
+          />
+        )}
 
         {/* Paginación */}
         {totalPages > 1 && (

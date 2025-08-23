@@ -1,5 +1,6 @@
 import { supabase } from '../../infrastructure/api/supabase';
 import { Permission, Module, Role } from '../../domain/types/auth.interfaces';
+import { CacheService } from './cache.service';
 
 /**
  * Servicio para la gestión de permisos y módulos
@@ -9,6 +10,13 @@ export class PermissionService {
    * Verificar si un usuario tiene un permiso específico
    */
   static async userHasPermission(userId: string, permissionName: string): Promise<boolean> {
+    // Verificar caché primero
+    const cacheKey = CacheService.getPermissionCheckCacheKey(userId, permissionName);
+    const cachedResult = CacheService.get<boolean>(cacheKey);
+    if (cachedResult !== null) {
+      return cachedResult;
+    }
+
     try {
       const { data, error } = await supabase
         .rpc('user_has_permission', {
@@ -21,7 +29,12 @@ export class PermissionService {
         return false;
       }
 
-      return data || false;
+      const result = data || false;
+      
+      // Guardar en caché por 15 minutos
+      CacheService.set(cacheKey, result, 15 * 60 * 1000);
+      
+      return result;
     } catch (error) {
       console.error('Error en userHasPermission:', error);
       return false;
@@ -32,6 +45,13 @@ export class PermissionService {
    * Obtener todos los permisos de un usuario (por roles y específicos)
    */
   static async getUserPermissions(userId: string): Promise<string[]> {
+    // Verificar caché primero
+    const cacheKey = CacheService.getUserPermissionsCacheKey(userId);
+    const cachedPermissions = CacheService.get<string[]>(cacheKey);
+    if (cachedPermissions !== null) {
+      return cachedPermissions;
+    }
+
     try {
       let allPermissions = new Set<string>();
 
@@ -90,7 +110,12 @@ export class PermissionService {
         console.warn('Tabla user_permissions no disponible:', error);
       }
 
-      return Array.from(allPermissions);
+      const result = Array.from(allPermissions);
+      
+      // Guardar en caché por 30 minutos
+      CacheService.set(cacheKey, result, 30 * 60 * 1000);
+      
+      return result;
     } catch (error) {
       console.error('Error en getUserPermissions:', error);
       return [];
@@ -220,6 +245,13 @@ export class PermissionService {
    * Verificar si un usuario tiene acceso a un módulo específico
    */
   static async userHasModuleAccess(userId: string, modulePath: string): Promise<boolean> {
+    // Verificar caché primero
+    const cacheKey = CacheService.getModuleAccessCacheKey(userId, modulePath);
+    const cachedResult = CacheService.get<boolean>(cacheKey);
+    if (cachedResult !== null) {
+      return cachedResult;
+    }
+
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -243,7 +275,12 @@ export class PermissionService {
         return false;
       }
 
-      return data && data.length > 0;
+      const result = data && data.length > 0;
+      
+      // Guardar en caché por 15 minutos
+      CacheService.set(cacheKey, result, 15 * 60 * 1000);
+      
+      return result;
     } catch (error) {
       console.error('Error en userHasModuleAccess:', error);
       return false;

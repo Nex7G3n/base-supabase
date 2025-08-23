@@ -15,6 +15,7 @@ interface PermissionsStore {
   loading: boolean;
   error: string | null;
   lastLoadTime: number | null;
+  loadingPromise: Promise<void> | null; // Para evitar múltiples cargas concurrentes
 
   // Acciones
   loadUserPermissions: (userId: string, forceReload?: boolean) => Promise<void>;
@@ -41,6 +42,7 @@ export const usePermissionsStore = create<PermissionsStore>()(
       loading: false,
       error: null,
       lastLoadTime: null,
+      loadingPromise: null,
 
       // Cargar permisos del usuario
       loadUserPermissions: async (userId: string, forceReload = false) => {
@@ -51,53 +53,60 @@ export const usePermissionsStore = create<PermissionsStore>()(
           return;
         }
 
-        // Evitar múltiples cargas simultáneas
-        if (state.loading) {
-          return;
+        // Si ya hay una carga en progreso, esperar a que termine
+        if (state.loadingPromise) {
+          return state.loadingPromise;
         }
 
-        try {
-          set({ loading: true, error: null });
+        const loadingPromise = (async () => {
+          try {
+            set({ loading: true, error: null });
 
-          // Cargar permisos básicos, detallados y módulos en paralelo
-          const [
-            permissions,
-            detailedPermissions,
-            accessibleModules
-          ] = await Promise.all([
-            PermissionService.getUserPermissions(userId),
-            PermissionService.getUserDetailedPermissions(userId),
-            PermissionService.getUserAccessibleModules(userId)
-          ]);
+            // Cargar permisos básicos, detallados y módulos en paralelo
+            const [
+              permissions,
+              detailedPermissions,
+              accessibleModules
+            ] = await Promise.all([
+              PermissionService.getUserPermissions(userId),
+              PermissionService.getUserDetailedPermissions(userId),
+              PermissionService.getUserAccessibleModules(userId)
+            ]);
 
-          // Obtener todos los módulos únicos
-          const allModulesMap = new Map<string, Module>();
-          detailedPermissions.forEach(permission => {
-            if (permission.module) {
-              allModulesMap.set(permission.module.id, permission.module);
-            }
-          });
+            // Obtener todos los módulos únicos
+            const allModulesMap = new Map<string, Module>();
+            detailedPermissions.forEach(permission => {
+              if (permission.module) {
+                allModulesMap.set(permission.module.id, permission.module);
+              }
+            });
 
-          set({
-            permissions,
-            detailedPermissions,
-            modules: Array.from(allModulesMap.values()),
-            accessibleModules,
-            isLoaded: true,
-            loading: false,
-            error: null,
-            lastLoadTime: Date.now()
-          });
+            set({
+              permissions,
+              detailedPermissions,
+              modules: Array.from(allModulesMap.values()),
+              accessibleModules,
+              isLoaded: true,
+              loading: false,
+              error: null,
+              lastLoadTime: Date.now(),
+              loadingPromise: null
+            });
 
-        } catch (error: any) {
-          console.error('Error al cargar permisos:', error);
-          set({
-            loading: false,
-            error: error?.message || 'Error al cargar permisos',
-            // Mantener datos anteriores si existen
-            isLoaded: state.isLoaded
-          });
-        }
+          } catch (error: any) {
+            console.error('Error al cargar permisos:', error);
+            set({
+              loading: false,
+              error: error?.message || 'Error al cargar permisos',
+              loadingPromise: null,
+              // Mantener datos anteriores si existen
+              isLoaded: state.isLoaded
+            });
+          }
+        })();
+
+        set({ loadingPromise });
+        return loadingPromise;
       },
 
       // Limpiar permisos
@@ -110,7 +119,8 @@ export const usePermissionsStore = create<PermissionsStore>()(
           isLoaded: false,
           loading: false,
           error: null,
-          lastLoadTime: null
+          lastLoadTime: null,
+          loadingPromise: null
         });
       },
 
@@ -170,10 +180,14 @@ export const usePermissionsStore = create<PermissionsStore>()(
             isLoaded: false,
             loading: false,
             error: null,
-            lastLoadTime: null
+            lastLoadTime: null,
+            loadingPromise: null
           };
         }
-        return persistedState;
+        return {
+          ...persistedState,
+          loadingPromise: null // Siempre reiniciar el promise de carga
+        };
       }
     }
   )

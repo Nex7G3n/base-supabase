@@ -5,63 +5,31 @@ import { RoleManagementService } from '../services/management/roles.service';
 import { ModuleManagementService } from '../services/management/modules.service';
 import { PermissionManagementService } from '../services/management/permissions.service';
 import { useAuthState } from '../auth';
+import { usePermissions as useAuthPermissions } from '../auth/application/store/permissions.store';
 
 export function usePermissions() {
+  // Usar el sistema optimizado de permisos del módulo de auth
+  const authPermissions = useAuthPermissions();
   const { user, isAuthenticated, isInitialized } = useAuthState();
-  const [permissions, setPermissions] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUserId, setLastUserId] = useState<string | null>(null);
 
-  // Cargar permisos del usuario
-  const loadPermissions = useCallback(async () => {
-    // No cargar si no está autenticado o si ya tenemos los permisos para este usuario
-    if (!user?.id || !isAuthenticated || !isInitialized || user.id === lastUserId) {
-      if (!user?.id || !isAuthenticated) {
-        setPermissions([]);
-        setLastUserId(null);
-      }
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const userPermissions = await UserManagementService.getUserPermissions(user.id);
-      setPermissions(userPermissions);
-      setLastUserId(user.id);
-    } catch (error) {
-      console.error('Error al cargar permisos:', error);
-      setPermissions([]);
-      setLastUserId(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isAuthenticated, isInitialized, lastUserId]);
-
-  useEffect(() => {
-    loadPermissions();
-  }, [loadPermissions]);
-
-  // Verificar si el usuario tiene un permiso específico
+  // Mapear las funciones para mantener compatibilidad
   const hasPermission = useCallback((permissionName: string): boolean => {
-    return permissions.includes(permissionName);
-  }, [permissions]);
+    return authPermissions.hasPermission(permissionName);
+  }, [authPermissions]);
 
-  // Verificar si el usuario tiene alguno de los permisos especificados
   const hasAnyPermission = useCallback((permissionNames: string[]): boolean => {
-    return permissionNames.some(permission => permissions.includes(permission));
-  }, [permissions]);
+    return authPermissions.hasAnyPermission(permissionNames);
+  }, [authPermissions]);
 
-  // Verificar si el usuario tiene todos los permisos especificados
   const hasAllPermissions = useCallback((permissionNames: string[]): boolean => {
-    return permissionNames.every(permission => permissions.includes(permission));
-  }, [permissions]);
+    return authPermissions.hasAllPermissions(permissionNames);
+  }, [authPermissions]);
 
   // Verificar permisos por módulo y acción
   const hasModulePermission = useCallback((moduleName: string, action: string): boolean => {
-    const permissionName = `${moduleName}_${action}`;
-    return permissions.includes(permissionName);
-  }, [permissions]);
+    const permissionName = `${moduleName}.${action}`;
+    return authPermissions.hasPermission(permissionName);
+  }, [authPermissions]);
 
   // Verificar si el usuario es administrador
   const isAdmin = useCallback((): boolean => {
@@ -76,16 +44,23 @@ export function usePermissions() {
       hasModulePermission('permissions', 'delete');
   }, [hasPermission, hasModulePermission]);
 
+  // Función para recargar permisos si es necesario
+  const refetch = useCallback(async () => {
+    if (user?.id) {
+      await authPermissions.refreshIfNeeded(user.id);
+    }
+  }, [user?.id, authPermissions]);
+
   return {
-    permissions,
-    loading,
+    permissions: authPermissions.permissions,
+    loading: authPermissions.loading,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
     hasModulePermission,
     isAdmin,
     isSuperAdmin,
-    refetch: loadPermissions
+    refetch
   };
 }
 

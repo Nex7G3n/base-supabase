@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthSimple } from '../auth/application/hooks/useAuthSimple';
-import { PageSkeleton } from './ui/skeleton';
 import Sidebar from '../common/components/Sidebar';
 import UserMenu from './UserMenu';
 
@@ -45,7 +44,25 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
 
   // Mostrar skeleton mientras se inicializa
   if (!isInitialized || loading) {
-    return <PageSkeleton isAuthenticated={isAuthenticated} />;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="animate-pulse">
+          <div className="bg-white shadow">
+            <div className="h-16 bg-gray-200" />
+          </div>
+          <div className="flex">
+            <div className="w-64 h-screen bg-gray-200" />
+            <div className="flex-1 p-6">
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-1/3" />
+                <div className="h-4 bg-gray-200 rounded w-1/2" />
+                <div className="h-4 bg-gray-200 rounded w-3/4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Si no está autenticado, renderizar sin layout
