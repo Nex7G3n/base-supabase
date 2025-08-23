@@ -155,11 +155,11 @@ export default function PermissionsPage() {
   }
 
   return (
-    <ProtectedRoute permissions={['permissions.read']}>
+    <ProtectedRoute permissions={['permissions_read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Permisos</h1>
-          <ProtectedComponent permissions={['permissions.create']}>
+          <ProtectedComponent permissions={['permissions_create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Permiso
             </Button>

@@ -10,14 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Upload, User, Mail, Phone, Calendar, Save, X } from 'lucide-react';
-import { useToast } from '@/providers/ToastProvider';
+import toast from 'react-hot-toast';
 
 export default function ProfilePage() {
   const { user, refreshUserData } = useAuth();
-  const { success, error: showError } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  
+  // Estado optimista para mostrar los cambios inmediatamente
+  const [optimisticUser, setOptimisticUser] = useState(user);
+  
   const [formData, setFormData] = useState<UpdateUserRequest>({
     first_name: '',
     last_name: '',
@@ -27,6 +30,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user) {
+      setOptimisticUser(user);
       setFormData({
         first_name: user.first_name || '',
         last_name: user.last_name || '',
@@ -47,31 +51,58 @@ export default function ProfilePage() {
     if (!user) return;
 
     setLoading(true);
+    
+    // Guardar el estado anterior para posible rollback
+    const previousUser = optimisticUser;
+    const previousFormData = { ...formData };
+    
+    // Actualización optimista: aplicar cambios inmediatamente en la UI
+    const updatedUser = {
+      ...optimisticUser!,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone: formData.phone,
+      avatar_url: formData.avatar_url
+    };
+    setOptimisticUser(updatedUser);
+    setIsEditing(false);
+    
+    // Mostrar toast de loading
+    const loadingToast = toast.loading('Guardando cambios...');
+    
     try {
       const response = await UserManagementService.updateUser(user.id, formData);
       
       if (response.success) {
+        // Éxito: mostrar toast de éxito y refrescar datos del servidor
+        toast.success('Perfil actualizado correctamente', { id: loadingToast });
         await refreshUserData();
-        setIsEditing(false);
-        success('Perfil actualizado', 'Tu información se ha guardado correctamente');
       } else {
-        showError('Error al actualizar', response.error || 'No se pudo actualizar el perfil');
+        // Error: hacer rollback y mostrar error
+        setOptimisticUser(previousUser);
+        setFormData(previousFormData);
+        setIsEditing(true);
+        toast.error(response.error || 'No se pudo actualizar el perfil', { id: loadingToast });
       }
     } catch (error) {
+      // Error inesperado: hacer rollback y mostrar error
       console.error('Error al actualizar perfil:', error);
-      showError('Error inesperado', 'Ocurrió un error al actualizar el perfil');
+      setOptimisticUser(previousUser);
+      setFormData(previousFormData);
+      setIsEditing(true);
+      toast.error('Error inesperado al actualizar el perfil', { id: loadingToast });
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    if (user) {
+    if (optimisticUser) {
       setFormData({
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        phone: user.phone || '',
-        avatar_url: user.avatar_url || ''
+        first_name: optimisticUser.first_name || '',
+        last_name: optimisticUser.last_name || '',
+        phone: optimisticUser.phone || '',
+        avatar_url: optimisticUser.avatar_url || ''
       });
     }
     setIsEditing(false);
@@ -83,17 +114,23 @@ export default function ProfilePage() {
 
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-      showError('Archivo inválido', 'Por favor selecciona un archivo de imagen válido');
+      toast.error('Por favor selecciona un archivo de imagen válido');
       return;
     }
 
     // Validar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showError('Archivo muy grande', 'El archivo debe ser menor a 5MB');
+      toast.error('El archivo debe ser menor a 5MB');
       return;
     }
 
     setUploadingAvatar(true);
+    
+    // Guardar avatar anterior para rollback
+    const previousAvatarUrl = optimisticUser?.avatar_url;
+    
+    const loadingToast = toast.loading('Subiendo imagen...');
+    
     try {
       // Crear nombre único para el archivo
       const fileExt = file.name.split('.').pop();
@@ -114,27 +151,36 @@ export default function ProfilePage() {
         .from('public')
         .getPublicUrl(filePath);
 
+      // Actualización optimista del avatar
+      setOptimisticUser(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
+      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+
       // Actualizar el avatar en la base de datos
       const response = await UserManagementService.updateUser(user.id, {
         avatar_url: publicUrl
       });
 
       if (response.success) {
+        toast.success('Avatar actualizado correctamente', { id: loadingToast });
         await refreshUserData();
-        setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
-        success('Avatar actualizado', 'Tu foto de perfil se ha actualizado correctamente');
       } else {
+        // Rollback en caso de error
+        setOptimisticUser(prev => prev ? { ...prev, avatar_url: previousAvatarUrl || '' } : prev);
+        setFormData(prev => ({ ...prev, avatar_url: previousAvatarUrl || '' }));
         throw new Error(response.error);
       }
     } catch (error) {
       console.error('Error al subir avatar:', error);
-      showError('Error al subir imagen', 'No se pudo actualizar tu foto de perfil');
+      // Rollback en caso de error
+      setOptimisticUser(prev => prev ? { ...prev, avatar_url: previousAvatarUrl || '' } : prev);
+      setFormData(prev => ({ ...prev, avatar_url: previousAvatarUrl || '' }));
+      toast.error('No se pudo actualizar tu foto de perfil', { id: loadingToast });
     } finally {
       setUploadingAvatar(false);
     }
   };
 
-  if (!user) {
+  if (!user || !optimisticUser) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-64">
@@ -253,7 +299,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <p className="text-sm py-2 px-3 bg-muted rounded-md">
-                    {user.first_name || 'No especificado'}
+                    {optimisticUser.first_name || 'No especificado'}
                   </p>
                 )}
               </div>
@@ -271,7 +317,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <p className="text-sm py-2 px-3 bg-muted rounded-md">
-                    {user.last_name || 'No especificado'}
+                    {optimisticUser.last_name || 'No especificado'}
                   </p>
                 )}
               </div>
@@ -283,7 +329,7 @@ export default function ProfilePage() {
                 Correo Electrónico
               </label>
               <p className="text-sm py-2 px-3 bg-muted rounded-md text-muted-foreground">
-                {user.email}
+                {optimisticUser.email}
                 <span className="ml-2 text-xs">(No se puede modificar)</span>
               </p>
             </div>
@@ -302,7 +348,7 @@ export default function ProfilePage() {
                 />
               ) : (
                 <p className="text-sm py-2 px-3 bg-muted rounded-md">
-                  {user.phone || 'No especificado'}
+                  {optimisticUser.phone || 'No especificado'}
                 </p>
               )}
             </div>
@@ -313,7 +359,7 @@ export default function ProfilePage() {
                 Miembro desde
               </label>
               <p className="text-sm py-2 px-3 bg-muted rounded-md">
-                {new Date(user.created_at).toLocaleDateString('es-ES', {
+                {new Date(optimisticUser.created_at).toLocaleDateString('es-ES', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -321,14 +367,14 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            {user.last_login && (
+            {optimisticUser.last_login && (
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Último acceso
                 </label>
                 <p className="text-sm py-2 px-3 bg-muted rounded-md">
-                  {new Date(user.last_login).toLocaleDateString('es-ES', {
+                  {new Date(optimisticUser.last_login).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -343,7 +389,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Información adicional sobre roles */}
-      {user.roles && user.roles.length > 0 && (
+      {optimisticUser.roles && optimisticUser.roles.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Roles y Permisos</CardTitle>
@@ -355,7 +401,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Roles asignados</label>
               <div className="flex flex-wrap gap-2">
-                {user.roles.map((role: Role) => (
+                {optimisticUser.roles.map((role: Role) => (
                   <span
                     key={role.id}
                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary"

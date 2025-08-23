@@ -106,7 +106,7 @@ export default function UsersPage() {
               <p className="text-gray-600">Gestiona los usuarios del sistema</p>
             </div>
             <ProtectedComponent permissions={['users_create']}>
-              <Button 
+              <Button
                 onClick={() => setShowCreateForm(true)}
                 className="bg-blue-600 hover:bg-blue-700"
               >
@@ -132,9 +132,9 @@ export default function UsersPage() {
               {loading && users.length === 0 ? (
                 <TableSkeleton rows={5} columns={6} />
               ) : (
-                <DataTable 
-                  columns={columns} 
-                  data={users} 
+                <DataTable
+                  columns={columns}
+                  data={users}
                   searchKey="email"
                   searchPlaceholder="Buscar por email..."
                 />

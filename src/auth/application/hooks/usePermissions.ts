@@ -68,14 +68,14 @@ export function usePermissions() {
    * Verificar si el usuario puede acceder al dashboard
    */
   const canAccessDashboard = (): boolean => {
-    return hasPermission('dashboard.read') || isAdmin();
+    return hasPermission('dashboard_read') || isAdmin();
   };
 
   /**
    * Verificar si el usuario puede ver reportes
    */
   const canViewReports = (): boolean => {
-    return hasPermission('reports.read') || hasAnyRole(['admin', 'manager']);
+    return hasPermission('reports_read') || hasAnyRole(['admin', 'manager']);
   };
 
   /**

@@ -166,11 +166,11 @@ export default function RolesPage() {
   }
 
   return (
-    <ProtectedRoute permissions={['roles.read']}>
+    <ProtectedRoute permissions={['roles_read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Roles</h1>
-          <ProtectedComponent permissions={['roles.create']}>
+          <ProtectedComponent permissions={['roles_create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Rol
             </Button>

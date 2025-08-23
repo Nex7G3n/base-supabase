@@ -74,8 +74,8 @@ export const useAuth = () => {
   const canManageRoles = () => hasPermission('roles.manage') || isSuperAdmin();
   const canManagePermissions = () => hasPermission('permissions.manage') || isSuperAdmin();
   const canManageModules = () => hasPermission('modules.manage') || isSuperAdmin();
-  const canAccessDashboard = () => hasPermission('dashboard.read') || isAuthenticated;
-  const canViewReports = () => hasPermission('reports.read') || isManager();
+  const canAccessDashboard = () => hasPermission('dashboard_read') || isAuthenticated;
+  const canViewReports = () => hasPermission('reports_read') || isManager();
 
   // Funciones para refrescar datos
   const refreshUserData = async () => {

@@ -156,11 +156,11 @@ export default function ModulesPage() {
   }
 
   return (
-    <ProtectedRoute permissions={['modules.read']}>
+    <ProtectedRoute permissions={['modules_read']}>
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Gestión de Módulos</h1>
-          <ProtectedComponent permissions={['modules.create']}>
+          <ProtectedComponent permissions={['modules_create']}>
             <Button onClick={() => setShowCreateForm(true)}>
               Crear Módulo
             </Button>

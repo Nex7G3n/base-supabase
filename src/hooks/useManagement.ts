@@ -27,7 +27,7 @@ export function usePermissions() {
 
   // Verificar permisos por módulo y acción
   const hasModulePermission = useCallback((moduleName: string, action: string): boolean => {
-    const permissionName = `${moduleName}.${action}`;
+    const permissionName = `${moduleName}_${action}`;
     return authPermissions.hasPermission(permissionName);
   }, [authPermissions]);
 
