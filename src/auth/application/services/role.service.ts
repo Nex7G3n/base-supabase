@@ -60,7 +60,7 @@ export class RoleService {
       const { data, error } = await supabase
         .from('user_roles')
         .select(`
-          roles!user_roles_role_id_fkey (*)
+          roles!role_id (*)
         `)
         .eq('user_id', userId)
         .eq('is_active', true)
@@ -90,7 +90,7 @@ export class RoleService {
       const { data, error } = await supabase
         .from('user_roles')
         .select(`
-          roles!user_roles_role_id_fkey (name)
+          roles!role_id (name)
         `)
         .eq('user_id', userId)
         .eq('is_active', true)
@@ -117,7 +117,7 @@ export class RoleService {
       const { data, error } = await supabase
         .from('user_roles')
         .select(`
-          roles!user_roles_role_id_fkey (name)
+          roles!role_id (name)
         `)
         .eq('user_id', userId)
         .eq('is_active', true)

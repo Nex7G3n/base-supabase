@@ -2,7 +2,7 @@
 
 import React, { useContext } from 'react';
 import { Toast } from '@/components/ui/toast';
-import { useToast as useToastHook } from '@/hooks/useToast';
+import { useToast as useToastHook } from '@/common/hooks/useToast';
 
 export function Toaster() {
   const { toasts, dismiss } = useToastHook();

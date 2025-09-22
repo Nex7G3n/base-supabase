@@ -1,12 +1,14 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ProtectedRoute, ProtectedComponent, PermissionButton } from '../../components/ProtectedComponent';
-import { useUserManagement, useRoleManagement } from '../../hooks/useManagement';
+import { useUserManagement, useRoleManagement } from '../../common/hooks/useManagement';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { DataTable } from '../../components/ui/data-table';
 import { TableSkeleton } from '../../components/ui/skeleton';
+import { UserForm } from '../../components/forms/UserForm';
+import { ConfirmDialog } from '../../components/ui/confirm-dialog';
 import { createUserColumns } from './columns';
 import { User, Role } from '../../types/management.types';
 
@@ -18,6 +20,7 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const { getUsers, createUser, updateUser, deleteUser, assignRoles, loading, error } = useUserManagement();
   const { getAllActiveRoles } = useRoleManagement();
@@ -58,6 +61,10 @@ export default function UsersPage() {
       if (response.success) {
         setShowCreateForm(false);
         loadUsers();
+        // Si hay roles seleccionados, asignarlos
+        if (userData.role_ids && userData.role_ids.length > 0 && response.data?.id) {
+          await assignRoles(response.data.id, userData.role_ids);
+        }
       }
     } catch (error) {
       console.error('Error al crear usuario:', error);
@@ -70,6 +77,10 @@ export default function UsersPage() {
       if (response.success) {
         setSelectedUser(null);
         loadUsers();
+        // Si hay roles seleccionados, asignarlos
+        if (userData.role_ids) {
+          await assignRoles(userId, userData.role_ids);
+        }
       }
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
@@ -77,15 +88,23 @@ export default function UsersPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-      try {
-        const response = await deleteUser(userId);
-        if (response.success) {
-          loadUsers();
-        }
-      } catch (error) {
-        console.error('Error al eliminar usuario:', error);
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setUserToDelete(user);
+    }
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    try {
+      const response = await deleteUser(userToDelete.id);
+      if (response.success) {
+        loadUsers();
+        setUserToDelete(null);
       }
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
     }
   };
 
@@ -148,6 +167,44 @@ export default function UsersPage() {
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
             <p className="text-sm text-red-600">{error}</p>
           </div>
+        )}
+
+        {/* Formulario de crear usuario */}
+        {showCreateForm && (
+          <UserForm
+            roles={roles}
+            onSubmit={handleCreateUser}
+            onCancel={() => setShowCreateForm(false)}
+            loading={loading}
+            open={showCreateForm}
+          />
+        )}
+
+        {/* Formulario de editar usuario */}
+        {selectedUser && (
+          <UserForm
+            user={selectedUser}
+            roles={roles}
+            onSubmit={(userData) => handleUpdateUser(selectedUser.id, userData)}
+            onCancel={() => setSelectedUser(null)}
+            loading={loading}
+            open={!!selectedUser}
+          />
+        )}
+
+        {/* Dialog de confirmación para eliminar */}
+        {userToDelete && (
+          <ConfirmDialog
+            open={!!userToDelete}
+            title="Eliminar Usuario"
+            description={`¿Estás seguro de que quieres eliminar al usuario "${userToDelete.first_name} ${userToDelete.last_name}" (${userToDelete.email})? Esta acción no se puede deshacer.`}
+            confirmText="Eliminar"
+            cancelText="Cancelar"
+            variant="destructive"
+            onConfirm={confirmDeleteUser}
+            onCancel={() => setUserToDelete(null)}
+            loading={loading}
+          />
         )}
       </div>
     </ProtectedRoute>

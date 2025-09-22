@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ProtectedRoute, ProtectedComponent } from '../../components/ProtectedComponent';
-import { useModuleManagement } from '../../hooks/useManagement';
+import { useModuleManagement } from '../../common/hooks/useManagement';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';

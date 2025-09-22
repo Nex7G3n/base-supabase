@@ -345,5 +345,54 @@ export const MODULE_NAMES = {
   PERMISSIONS: 'permissions',
   MODULES: 'modules',
   REPORTS: 'reports',
-  SETTINGS: 'settings'
+  SETTINGS: 'settings',
+  TASKS: 'tasks'
 } as const;
+
+// ============================================================================
+// TIPOS PARA TAREAS
+// ============================================================================
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  due_date?: string;
+  assigned_to?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  created_by_user?: User;
+  assigned_to_user?: User;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  status?: Task['status'];
+  priority?: Task['priority'];
+  due_date?: string;
+  assigned_to?: string;
+}
+
+export interface UpdateTaskRequest {
+  title?: string;
+  description?: string;
+  status?: Task['status'];
+  priority?: Task['priority'];
+  due_date?: string;
+  assigned_to?: string;
+}
+
+export interface TaskFilters {
+  search?: string;
+  status?: Task['status'];
+  priority?: Task['priority'];
+  assigned_to?: string;
+  created_by?: string;
+  due_date_from?: string;
+  due_date_to?: string;
+}

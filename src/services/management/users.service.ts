@@ -22,7 +22,7 @@ export class UserManagementService {
         .from('users')
         .select(`
           *,
-          user_roles!user_roles_user_id_fkey (
+          user_roles!user_id (
             id,
             role_id,
             is_active,
@@ -107,7 +107,7 @@ export class UserManagementService {
           .from('users')
           .select(`
             *,
-            user_roles!user_roles_user_id_fkey (
+            user_roles!user_id (
               id,
               role_id,
               is_active,

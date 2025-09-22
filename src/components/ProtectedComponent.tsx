@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { usePermissions } from '../hooks/useManagement';
+import { usePermissions } from '../common/hooks/useManagement';
 
 interface ProtectedComponentProps {
   children: React.ReactNode;

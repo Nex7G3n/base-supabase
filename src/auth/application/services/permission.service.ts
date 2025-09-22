@@ -60,7 +60,7 @@ export class PermissionService {
         const { data: rolePermissions, error: roleError } = await supabase
           .from('user_roles')
           .select(`
-            roles!user_roles_role_id_fkey (
+            roles!role_id (
               role_permissions!inner (
                 granted,
                 permissions!inner (name)
@@ -131,7 +131,7 @@ export class PermissionService {
       const { data: rolePermissions, error: roleError } = await supabase
         .from('user_roles')
         .select(`
-          roles!user_roles_role_id_fkey (
+          roles!role_id (
             role_permissions!inner (
               granted,
               permissions!inner (
@@ -256,7 +256,7 @@ export class PermissionService {
       const { data, error } = await supabase
         .from('user_roles')
         .select(`
-          roles!user_roles_role_id_fkey (
+          roles!role_id (
             role_permissions!inner (
               granted,
               permissions!inner (

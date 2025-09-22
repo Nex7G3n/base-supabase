@@ -16,9 +16,9 @@ export const useToast = () => {
   const toast = useCallback((message: Omit<ToastMessage, 'id'>) => {
     const id = Date.now().toString();
     const newToast = { ...message, id };
-    
+
     setToasts(prev => [...prev, newToast]);
-    
+
     // Auto remove after duration (default 5 seconds)
     const duration = message.duration ?? 5000;
     if (duration > 0) {
@@ -26,7 +26,7 @@ export const useToast = () => {
         dismiss(id);
       }, duration);
     }
-    
+
     return id;
   }, []);
 
