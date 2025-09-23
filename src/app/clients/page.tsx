@@ -177,61 +177,70 @@ export default function ClientsPage() {
   const columns = createClientsColumns(handleEditClient, handleDeleteClient);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
-          <p className="text-muted-foreground">
-            Gestiona los clientes de tu organización
-          </p>
+    <div className="page-container">
+      <div className="content-wrapper">
+        {/* Header */}
+        <div className="page-header">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="page-title">Gestión de Clientes</h1>
+              <p className="page-description">
+                Administra la información de todos los clientes de tu organización
+              </p>
+            </div>
+            
+            <ProtectedComponent permissions={["clients_create"]}>
+              <Button onClick={handleNewClient} className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-base font-medium">
+                <Plus className="h-5 w-5 mr-2" />
+                Nuevo Cliente
+              </Button>
+            </ProtectedComponent>
+          </div>
         </div>
-        
-        <ProtectedComponent permissions={["clients_create"]}>
-          <Button onClick={handleNewClient} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Nuevo Cliente
-          </Button>
-        </ProtectedComponent>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clientes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              Clientes registrados
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Con Email</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.withEmail}</div>
-            <p className="text-xs text-muted-foreground">
-              Contacto por email
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Con Teléfono</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.withPhone}</div>
-            <p className="text-xs text-muted-foreground">
-              Contacto telefónico
-            </p>
-          </CardContent>
-        </Card>
+        {/* Stats Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="base-card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-500 rounded-lg text-white mr-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-800">{stats.total}</div>
+                <p className="text-sm text-blue-600">Total Clientes</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="base-card bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-500 rounded-lg text-white mr-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-800">{stats.withEmail}</div>
+                <p className="text-sm text-green-600">Con Email</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="base-card bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-orange-500 rounded-lg text-white mr-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-orange-800">{stats.withPhone}</div>
+                <p className="text-sm text-orange-600">Con Teléfono</p>
+              </div>
+            </div>
+          </div>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -305,6 +314,7 @@ export default function ClientsPage() {
         onCancel={() => setClientToDelete(null)}
         variant="destructive"
       />
+      </div>
     </div>
   );
 }

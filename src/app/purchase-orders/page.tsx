@@ -107,18 +107,21 @@ export default function PurchaseOrdersPage() {
 
   return (
     <ProtectedRoute permissions={['purchase_orders_read']}>
-      <div className="p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">Órdenes de Compra</h2>
-            <p className="text-gray-600">Gestiona las órdenes de compra a proveedores</p>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <div>
+              <h1 className="page-title">Órdenes de Compra</h1>
+              <p className="page-description">
+                Gestiona las órdenes de compra a proveedores
+              </p>
+            </div>
+            <ProtectedComponent permissions={['purchase_orders_create']}>
+              <Button onClick={() => setShowCreateForm(true)}>
+                Crear Orden
+              </Button>
+            </ProtectedComponent>
           </div>
-          <ProtectedComponent permissions={['purchase_orders_create']}>
-            <Button onClick={() => setShowCreateForm(true)}>
-              Crear Orden
-            </Button>
-          </ProtectedComponent>
-        </div>
 
         {loading && purchaseOrders.length === 0 ? (
           <TableSkeleton rows={5} columns={6} />
@@ -162,6 +165,7 @@ export default function PurchaseOrdersPage() {
             loading={loading}
           />
         )}
+        </div>
       </div>
     </ProtectedRoute>
   );

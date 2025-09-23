@@ -189,13 +189,16 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Mi Perfil</h1>
-        <p className="text-muted-foreground mt-2">
-          Gestiona tu información personal y configuración de cuenta
-        </p>
-      </div>
+    <div className="page-container">
+      <div className="content-wrapper">
+        <div className="page-header">
+          <div>
+            <h1 className="page-title">Mi Perfil</h1>
+            <p className="page-description">
+              Gestiona tu información personal y configuración de cuenta
+            </p>
+          </div>
+        </div>
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Tarjeta de Avatar */}
@@ -412,6 +415,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

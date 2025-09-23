@@ -107,18 +107,21 @@ export default function SuppliersPage() {
 
   return (
     <ProtectedRoute permissions={['suppliers_read']}>
-      <div className="p-6">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">Proveedores</h2>
-            <p className="text-gray-600">Gestiona los proveedores del sistema</p>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <div>
+              <h1 className="page-title">Proveedores</h1>
+              <p className="page-description">
+                Gestiona los proveedores del sistema
+              </p>
+            </div>
+            <ProtectedComponent permissions={['suppliers_create']}>
+              <Button onClick={() => setShowCreateForm(true)}>
+                Crear Proveedor
+              </Button>
+            </ProtectedComponent>
           </div>
-          <ProtectedComponent permissions={['suppliers_create']}>
-            <Button onClick={() => setShowCreateForm(true)}>
-              Crear Proveedor
-            </Button>
-          </ProtectedComponent>
-        </div>
 
         {loading && suppliers.length === 0 ? (
           <TableSkeleton rows={5} columns={6} />
@@ -162,6 +165,7 @@ export default function SuppliersPage() {
             loading={loading}
           />
         )}
+        </div>
       </div>
     </ProtectedRoute>
   );

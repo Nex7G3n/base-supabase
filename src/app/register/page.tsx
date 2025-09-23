@@ -49,62 +49,96 @@ export default function RegisterPage() {
     };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-blue-200">
-      <Card className="p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-green-700">Registrarse</h2>
-        <form onSubmit={handleRegister} className="flex flex-col gap-4">
-          <Input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            disabled={loading}
-          />
-          <Input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
-          <Input
-            type="password"
-            placeholder="Confirmar contraseña"
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-            required
-            disabled={loading}
-          />
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h2 className="auth-title">Crear cuenta</h2>
+          <p className="auth-subtitle">Completa los datos para registrarte</p>
+        </div>
+        
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <Input
+              type="email"
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="h-12 px-4 text-base"
+            />
+          </div>
+          <div>
+            <Input
+              type="password"
+              placeholder="Contraseña (mínimo 6 caracteres)"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              disabled={loading}
+              className="h-12 px-4 text-base"
+            />
+          </div>
+          <div>
+            <Input
+              type="password"
+              placeholder="Confirmar contraseña"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+              className="h-12 px-4 text-base"
+            />
+          </div>
           <Button 
             type="submit" 
-            className="bg-green-600 text-white hover:bg-green-700"
+            className="w-full bg-green-600 text-white hover:bg-green-700 h-12 text-base font-medium"
             disabled={loading}
           >
-            {loading ? "Creando cuenta..." : "Registrarse"}
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
           </Button>
         </form>
-        <div className="flex flex-col items-center mt-6 gap-2">
+        
+        <div className="mt-6 space-y-4">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">O regístrate con</span>
+            </div>
+          </div>
+          
           <Button 
             variant="outline" 
             onClick={handleGoogleRegister} 
-            className="flex items-center gap-2"
+            className="w-full flex items-center justify-center gap-3 h-12 text-base"
             disabled={loading}
           >
             <GoogleIcon className="w-5 h-5" />
-            Registrarse con Google
+            Google
           </Button>
-          <a href="/login" className="text-green-600 hover:underline text-sm">
-            ¿Ya tienes cuenta? Inicia sesión
-          </a>
+          
+          <div className="text-center">
+            <a href="/login" className="text-blue-600 hover:text-blue-800 font-medium">
+              ¿Ya tienes cuenta? Inicia sesión aquí
+            </a>
+          </div>
         </div>
+        
         {(error || validationError) && (
-          <p className="text-red-500 text-center mt-4">
-            {validationError || error}
-          </p>
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm text-center">
+              {validationError || error}
+            </p>
+          </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

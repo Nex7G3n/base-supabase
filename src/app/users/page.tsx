@@ -96,7 +96,7 @@ export default function UsersPage() {
 
   const confirmDeleteUser = async () => {
     if (!userToDelete) return;
-    
+
     try {
       const response = await deleteUser(userToDelete.id);
       if (response.success) {
@@ -116,38 +116,39 @@ export default function UsersPage() {
 
   return (
     <ProtectedRoute permissions={['users_read']}>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Usuarios</h2>
-              <p className="text-gray-600">Gestiona los usuarios del sistema</p>
+      <div className="page-container">
+        <div className="content-wrapper">
+          {/* Header */}
+          <div className="page-header">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="page-title">Gestión de Usuarios</h1>
+                <p className="page-description">Administra los usuarios del sistema y sus permisos</p>
+              </div>
+              <ProtectedComponent permissions={['users_create']}>
+                <Button
+                  onClick={() => setShowCreateForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-base font-medium"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Crear Usuario
+                </Button>
+              </ProtectedComponent>
             </div>
-            <ProtectedComponent permissions={['users_create']}>
-              <Button
-                onClick={() => setShowCreateForm(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Crear Usuario
-              </Button>
-            </ProtectedComponent>
           </div>
-        </div>
 
-        {/* Búsqueda y tabla de usuarios */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : (
-          <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
-                Lista de Usuarios ({users.length})
-              </h3>
+          {/* Contenido principal */}
+          {loading ? (
+            <div className="loading-container">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-500">Cargando usuarios...</p>
+              </div>
             </div>
-            <div className="p-6">
+          ) : (
+            <div className="overflow-hidden">
               {loading && users.length === 0 ? (
                 <TableSkeleton rows={5} columns={6} />
               ) : (
@@ -155,57 +156,57 @@ export default function UsersPage() {
                   columns={columns}
                   data={users}
                   searchKey="email"
-                  searchPlaceholder="Buscar por email..."
+                  searchPlaceholder="Buscar por email, nombre o apellido..."
                 />
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error display */}
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
+          {/* Error display */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
 
-        {/* Formulario de crear usuario */}
-        {showCreateForm && (
-          <UserForm
-            roles={roles}
-            onSubmit={handleCreateUser}
-            onCancel={() => setShowCreateForm(false)}
-            loading={loading}
-            open={showCreateForm}
-          />
-        )}
+          {/* Formulario de crear usuario */}
+          {showCreateForm && (
+            <UserForm
+              roles={roles}
+              onSubmit={handleCreateUser}
+              onCancel={() => setShowCreateForm(false)}
+              loading={loading}
+              open={showCreateForm}
+            />
+          )}
 
-        {/* Formulario de editar usuario */}
-        {selectedUser && (
-          <UserForm
-            user={selectedUser}
-            roles={roles}
-            onSubmit={(userData) => handleUpdateUser(selectedUser.id, userData)}
-            onCancel={() => setSelectedUser(null)}
-            loading={loading}
-            open={!!selectedUser}
-          />
-        )}
+          {/* Formulario de editar usuario */}
+          {selectedUser && (
+            <UserForm
+              user={selectedUser}
+              roles={roles}
+              onSubmit={(userData) => handleUpdateUser(selectedUser.id, userData)}
+              onCancel={() => setSelectedUser(null)}
+              loading={loading}
+              open={!!selectedUser}
+            />
+          )}
 
-        {/* Dialog de confirmación para eliminar */}
-        {userToDelete && (
-          <ConfirmDialog
-            open={!!userToDelete}
-            title="Eliminar Usuario"
-            description={`¿Estás seguro de que quieres eliminar al usuario "${userToDelete.first_name} ${userToDelete.last_name}" (${userToDelete.email})? Esta acción no se puede deshacer.`}
-            confirmText="Eliminar"
-            cancelText="Cancelar"
-            variant="destructive"
-            onConfirm={confirmDeleteUser}
-            onCancel={() => setUserToDelete(null)}
-            loading={loading}
-          />
-        )}
+          {/* Dialog de confirmación para eliminar */}
+          {userToDelete && (
+            <ConfirmDialog
+              open={!!userToDelete}
+              title="Eliminar Usuario"
+              description={`¿Estás seguro de que quieres eliminar al usuario "${userToDelete.first_name} ${userToDelete.last_name}" (${userToDelete.email})? Esta acción no se puede deshacer.`}
+              confirmText="Eliminar"
+              cancelText="Cancelar"
+              variant="destructive"
+              onConfirm={confirmDeleteUser}
+              onCancel={() => setUserToDelete(null)}
+              loading={loading}
+            />
+          )}
+        </div>
       </div>
     </ProtectedRoute>
   );

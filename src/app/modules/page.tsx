@@ -157,15 +157,21 @@ export default function ModulesPage() {
 
   return (
     <ProtectedRoute permissions={['modules_read']}>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Gestión de Módulos</h1>
-          <ProtectedComponent permissions={['modules_create']}>
-            <Button onClick={() => setShowCreateForm(true)}>
-              Crear Módulo
-            </Button>
-          </ProtectedComponent>
-        </div>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <div>
+              <h1 className="page-title">Gestión de Módulos</h1>
+              <p className="page-description">
+                Administra los módulos del sistema y su jerarquía
+              </p>
+            </div>
+            <ProtectedComponent permissions={['modules_create']}>
+              <Button onClick={() => setShowCreateForm(true)}>
+                Crear Módulo
+              </Button>
+            </ProtectedComponent>
+          </div>
 
         {error && (
           <Card className="p-4 mb-4 bg-red-50 border-red-200">
@@ -475,6 +481,7 @@ export default function ModulesPage() {
             )}
           </DialogContent>
         </Dialog>
+        </div>
       </div>
     </ProtectedRoute>
   );

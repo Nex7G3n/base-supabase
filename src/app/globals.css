@@ -120,3 +120,147 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos base para consistencia en toda la app */
+
+/* Contenedor base para páginas */
+.page-container {
+  min-height: calc(100vh - 64px);
+  background-color: #f8fafc;
+  padding: 1.5rem;
+}
+
+/* Contenedor de contenido principal */
+.content-wrapper {
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Encabezado de página */
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.page-description {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* Cards consistentes */
+.base-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.base-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Formularios */
+.form-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.form-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+}
+
+/* Estados de loading */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #64748b;
+}
+
+/* Auth pages */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #e2e8f0;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+/* Dashboard y home styles */
+.home-container {
+  min-height: calc(100vh - 64px);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  padding: 2rem;
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+}
+
+/* Utility classes */
+.text-primary {
+  color: #3b82f6;
+}
+
+.text-secondary {
+  color: #64748b;
+}
+
+.bg-primary {
+  background-color: #3b82f6;
+}
+
+.bg-secondary {
+  background-color: #f1f5f9;
+}

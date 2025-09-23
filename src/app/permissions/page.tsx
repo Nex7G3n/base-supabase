@@ -156,15 +156,21 @@ export default function PermissionsPage() {
 
   return (
     <ProtectedRoute permissions={['permissions_read']}>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Gestión de Permisos</h1>
-          <ProtectedComponent permissions={['permissions_create']}>
-            <Button onClick={() => setShowCreateForm(true)}>
-              Crear Permiso
-            </Button>
-          </ProtectedComponent>
-        </div>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <div>
+              <h1 className="page-title">Gestión de Permisos</h1>
+              <p className="page-description">
+                Administra los permisos y accesos del sistema
+              </p>
+            </div>
+            <ProtectedComponent permissions={['permissions_create']}>
+              <Button onClick={() => setShowCreateForm(true)}>
+                Crear Permiso
+              </Button>
+            </ProtectedComponent>
+          </div>
 
         {error && (
           <Card className="p-4 mb-4 bg-red-50 border-red-200">
@@ -447,6 +453,7 @@ export default function PermissionsPage() {
             )}
           </DialogContent>
         </Dialog>
+        </div>
       </div>
     </ProtectedRoute>
   );

@@ -51,11 +51,16 @@ export default function PurchasesReportPage() {
 
   return (
     <ProtectedRoute permissions={['reports_read']}>
-      <div className="p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold">Reporte de Compras</h2>
-          <p className="text-gray-600">Reporte de compras por proveedor y rango de fechas</p>
-        </div>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <div>
+              <h1 className="page-title">Reporte de Compras</h1>
+              <p className="page-description">
+                Reporte de compras por proveedor y rango de fechas
+              </p>
+            </div>
+          </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex items-end space-x-4">
           <div>
@@ -115,6 +120,7 @@ export default function PurchasesReportPage() {
               ))}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
     </ProtectedRoute>
