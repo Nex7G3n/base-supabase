@@ -346,7 +346,9 @@ export const MODULE_NAMES = {
   MODULES: 'modules',
   REPORTS: 'reports',
   SETTINGS: 'settings',
-  TASKS: 'tasks'
+  TASKS: 'tasks',
+  SUPPLIERS: 'suppliers',
+  PURCHASE_ORDERS: 'purchase_orders'
 } as const;
 
 // ============================================================================
@@ -395,4 +397,178 @@ export interface TaskFilters {
   created_by?: string;
   due_date_from?: string;
   due_date_to?: string;
+}
+
+// ============================================================================
+// TIPOS PARA PROVEEDORES
+// ============================================================================
+
+export interface Supplier {
+  id: string;
+  name: string;
+  business_name?: string;
+  ruc?: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  created_by_user?: User;
+}
+
+export interface CreateSupplierRequest {
+  name: string;
+  business_name?: string;
+  ruc?: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  is_active?: boolean;
+}
+
+export interface UpdateSupplierRequest {
+  name?: string;
+  business_name?: string;
+  ruc?: string;
+  contact_person?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  is_active?: boolean;
+}
+
+export interface SupplierFilters {
+  search?: string;
+  is_active?: boolean;
+  city?: string;
+  country?: string;
+  created_from?: string;
+  created_to?: string;
+}
+
+// ============================================================================
+// TIPOS PARA ÓRDENES DE COMPRA
+// ============================================================================
+
+export interface PurchaseOrder {
+  id: string;
+  order_number: string;
+  supplier_id: string;
+  order_date: string;
+  expected_delivery_date?: string;
+  status: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
+  subtotal: number;
+  tax_amount: number;
+  total_amount: number;
+  notes?: string;
+  created_by: string;
+  approved_by?: string;
+  received_by?: string;
+  created_at: string;
+  updated_at: string;
+  supplier?: Supplier;
+  created_by_user?: User;
+  approved_by_user?: User;
+  received_by_user?: User;
+  purchase_order_items?: PurchaseOrderItem[];
+}
+
+export interface PurchaseOrderItem {
+  id: string;
+  purchase_order_id: string;
+  product_name: string;
+  description?: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  received_quantity?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreatePurchaseOrderRequest {
+  supplier_id: string;
+  order_date: string;
+  expected_delivery_date?: string;
+  status?: PurchaseOrder['status'];
+  notes?: string;
+  items: CreatePurchaseOrderItemRequest[];
+}
+
+export interface CreatePurchaseOrderItemRequest {
+  product_name: string;
+  description?: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface UpdatePurchaseOrderRequest {
+  supplier_id?: string;
+  order_date?: string;
+  expected_delivery_date?: string;
+  status?: PurchaseOrder['status'];
+  notes?: string;
+  items?: UpdatePurchaseOrderItemRequest[];
+}
+
+export interface UpdatePurchaseOrderItemRequest {
+  id?: string;
+  product_name?: string;
+  description?: string;
+  quantity?: number;
+  unit_price?: number;
+  received_quantity?: number;
+}
+
+export interface PurchaseOrderFilters {
+  search?: string;
+  supplier_id?: string;
+  status?: PurchaseOrder['status'];
+  order_date_from?: string;
+  order_date_to?: string;
+  created_by?: string;
+  approved_by?: string;
+}
+
+// ============================================================================
+// TIPOS PARA REPORTES DE COMPRAS
+// ============================================================================
+
+export interface PurchaseReport {
+  supplier_id: string;
+  supplier_name: string;
+  total_orders: number;
+  total_amount: number;
+  average_order_amount: number;
+  last_order_date?: string;
+  orders_by_status: {
+    draft: number;
+    pending: number;
+    approved: number;
+    received: number;
+    cancelled: number;
+  };
+}
+
+export interface PurchaseReportFilters {
+  supplier_id?: string;
+  date_from: string;
+  date_to: string;
+  status?: PurchaseOrder['status'];
+}
+
+export interface PurchaseReportRequest {
+  filters: PurchaseReportFilters;
+  group_by?: 'supplier' | 'month' | 'status';
+  include_items?: boolean;
 }
