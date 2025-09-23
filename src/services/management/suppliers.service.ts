@@ -7,6 +7,7 @@ import {
   PaginatedResponse,
   ApiResponse
 } from '../../types/management.types';
+import { ToastHelper } from '../../common/utils/toastHelper';
 
 export class SupplierManagementService {
   /**
@@ -139,6 +140,11 @@ export class SupplierManagementService {
         throw new Error(`Error al crear proveedor: ${error.message}`);
       }
 
+      ToastHelper.success('Proveedor creado exitosamente', {
+        title: 'Éxito',
+        description: `${data.company_name} ha sido agregado`
+      });
+
       return {
         success: true,
         data,
@@ -146,9 +152,16 @@ export class SupplierManagementService {
       };
     } catch (error) {
       console.error('Error en createSupplier:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al crear proveedor', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }
@@ -172,6 +185,11 @@ export class SupplierManagementService {
         throw new Error(`Error al actualizar proveedor: ${error.message}`);
       }
 
+      ToastHelper.success('Proveedor actualizado exitosamente', {
+        title: 'Éxito',
+        description: `${data.company_name} ha sido actualizado`
+      });
+
       return {
         success: true,
         data,
@@ -179,9 +197,16 @@ export class SupplierManagementService {
       };
     } catch (error) {
       console.error('Error en updateSupplier:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al actualizar proveedor', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }
@@ -203,15 +228,27 @@ export class SupplierManagementService {
         throw new Error(`Error al eliminar proveedor: ${error.message}`);
       }
 
+      ToastHelper.success('Proveedor desactivado exitosamente', {
+        title: 'Éxito',
+        description: 'El proveedor ha sido desactivado del sistema'
+      });
+
       return {
         success: true,
         message: 'Proveedor eliminado exitosamente'
       };
     } catch (error) {
       console.error('Error en deleteSupplier:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al desactivar proveedor', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }

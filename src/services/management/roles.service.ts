@@ -10,6 +10,7 @@ import {
   AssignPermissionRequest
 } from '../../types/management.types';
 import { ManagementCacheService } from './cache.service';
+import { ToastHelper } from '../../common/utils/toastHelper';
 
 export class RoleManagementService {
   /**
@@ -157,6 +158,11 @@ export class RoleManagementService {
       // Invalidar caché de roles
       ManagementCacheService.invalidateRolesCache();
 
+      ToastHelper.success('Rol creado exitosamente', {
+        title: 'Éxito',
+        description: `El rol "${data.name}" ha sido creado`
+      });
+
       return {
         success: true,
         data,
@@ -164,9 +170,16 @@ export class RoleManagementService {
       };
     } catch (error) {
       console.error('Error en createRole:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al crear rol', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }
@@ -193,6 +206,11 @@ export class RoleManagementService {
       // Invalidar caché de roles
       ManagementCacheService.invalidateRolesCache();
 
+      ToastHelper.success('Rol actualizado exitosamente', {
+        title: 'Éxito',
+        description: `El rol "${data.name}" ha sido actualizado`
+      });
+
       return {
         success: true,
         data,
@@ -200,9 +218,16 @@ export class RoleManagementService {
       };
     } catch (error) {
       console.error('Error en updateRole:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al actualizar rol', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }
@@ -221,6 +246,11 @@ export class RoleManagementService {
         .limit(1);
 
       if (userRoles && userRoles.length > 0) {
+        ToastHelper.warning('No se puede eliminar este rol', {
+          title: 'Advertencia',
+          description: 'El rol está siendo usado por usuarios activos'
+        });
+
         return {
           success: false,
           error: 'No se puede eliminar un rol que está siendo usado por usuarios'
@@ -242,15 +272,27 @@ export class RoleManagementService {
       // Invalidar caché de roles
       ManagementCacheService.invalidateRolesCache();
 
+      ToastHelper.success('Rol desactivado exitosamente', {
+        title: 'Éxito',
+        description: 'El rol ha sido desactivado del sistema'
+      });
+
       return {
         success: true,
         message: 'Rol eliminado exitosamente'
       };
     } catch (error) {
       console.error('Error en deleteRole:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      ToastHelper.error('Error al desactivar rol', {
+        title: 'Error',
+        description: errorMessage
+      });
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido'
+        error: errorMessage
       };
     }
   }

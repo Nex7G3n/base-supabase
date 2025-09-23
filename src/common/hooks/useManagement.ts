@@ -1,18 +1,18 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { UserManagementService } from '../../services/management/users.service';
 import { RoleManagementService } from '../../services/management/roles.service';
 import { ModuleManagementService } from '../../services/management/modules.service';
 import { PermissionManagementService } from '../../services/management/permissions.service';
-import { TaskManagementService } from '../../services/management/tasks.service';
+
 import { useAuthState } from '../../auth';
 import { usePermissions as useAuthPermissions } from '../../auth/application/store/permissions.store';
-import { useToast } from './useToast';
+
 
 export function usePermissions() {
   // Usar el sistema optimizado de permisos del módulo de auth
   const authPermissions = useAuthPermissions();
-  const { user, isAuthenticated, isInitialized } = useAuthState();
+  const { user } = useAuthState();
 
   // Mapear las funciones para mantener compatibilidad
   const hasPermission = useCallback((permissionName: string): boolean => {
@@ -595,129 +595,4 @@ export function usePermissionManagement() {
   };
 }
 
-export function useTaskManagement() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { success: showSuccess, error: showError } = useToast();
 
-  const getTasks = useCallback(async (page: number, limit: number, filters?: any) => {
-    try {
-      setLoading(true);
-      setError(null);
-      return await TaskManagementService.getTasks(page, limit, filters);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
-
-  const createTask = useCallback(async (taskData: any) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await TaskManagementService.createTask(taskData);
-      
-      if (response.success) {
-        showSuccess(response.message || 'Tarea creada exitosamente');
-      } else {
-        showError(response.error || 'Error al crear tarea');
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [showSuccess, showError]);
-
-  const updateTask = useCallback(async (id: string, taskData: any) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await TaskManagementService.updateTask(id, taskData);
-      
-      if (response.success) {
-        showSuccess(response.message || 'Tarea actualizada exitosamente');
-      } else {
-        showError(response.error || 'Error al actualizar tarea');
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [showSuccess, showError]);
-
-  const deleteTask = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await TaskManagementService.deleteTask(id);
-      
-      if (response.success) {
-        showSuccess(response.message || 'Tarea eliminada exitosamente');
-      } else {
-        showError(response.error || 'Error al eliminar tarea');
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [showSuccess, showError]);
-
-  const updateTaskStatus = useCallback(async (id: string, status: any) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await TaskManagementService.updateTaskStatus(id, status);
-      
-      if (response.success) {
-        showSuccess(response.message || 'Estado actualizado exitosamente');
-      } else {
-        showError(response.error || 'Error al actualizar estado');
-      }
-      
-      return response;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setError(errorMessage);
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [showSuccess, showError]);
-
-  return {
-    loading,
-    error,
-    getTasks,
-    createTask,
-    updateTask,
-    deleteTask,
-    updateTaskStatus
-  };
-}

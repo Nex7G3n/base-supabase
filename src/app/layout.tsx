@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "../components/ConditionalLayout";
-import { ToastProvider } from "../providers/ToastProvider";
 import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
@@ -30,19 +29,55 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-        </ToastProvider>
+        <ConditionalLayout>
+          {children}
+        </ConditionalLayout>
         <Toaster 
           position="top-right"
+          reverseOrder={false}
+          gutter={8}
+          containerClassName=""
+          containerStyle={{}}
           toastOptions={{
             duration: 4000,
             style: {
-              background: 'hsl(var(--background))',
-              color: 'hsl(var(--foreground))',
-              border: '1px solid hsl(var(--border))',
+              background: '#ffffff',
+              color: '#1f2937',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+              fontSize: '14px',
+              fontWeight: '500',
+              maxWidth: '400px',
+            },
+            success: {
+              style: {
+                background: '#f0fdf4',
+                color: '#166534',
+                border: '1px solid #bbf7d0',
+              },
+              iconTheme: {
+                primary: '#22c55e',
+                secondary: '#f0fdf4',
+              },
+            },
+            error: {
+              style: {
+                background: '#fef2f2',
+                color: '#dc2626',
+                border: '1px solid #fecaca',
+              },
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fef2f2',
+              },
+            },
+            loading: {
+              style: {
+                background: '#f8fafc',
+                color: '#475569',
+                border: '1px solid #cbd5e1',
+              },
             },
           }}
         />

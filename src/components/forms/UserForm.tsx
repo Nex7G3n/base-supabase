@@ -53,10 +53,13 @@ export function UserForm({ user, roles, onSubmit, onCancel, loading = false, ope
       errors.first_name = 'El nombre es requerido';
     }
 
-    if (!formData.email.trim()) {
-      errors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'El email no es válido';
+    // Solo validar email si estamos creando un usuario (no editando)
+    if (!user) {
+      if (!formData.email.trim()) {
+        errors.email = 'El email es requerido';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        errors.email = 'El email no es válido';
+      }
     }
 
     if (!user && !formData.password.trim()) {
@@ -77,7 +80,18 @@ export function UserForm({ user, roles, onSubmit, onCancel, loading = false, ope
     }
 
     try {
-      await onSubmit(formData);
+      if (user) {
+        // En modo edición, no incluir email
+        const { email: _email, password, ...editData } = formData;
+        
+        // Solo incluir password si no está vacío
+        const submitData = password ? { ...editData, password } : editData;
+        
+        await onSubmit(submitData);
+      } else {
+        // En modo creación, incluir todos los datos
+        await onSubmit(formData);
+      }
     } catch (error) {
       console.error('Error al enviar formulario:', error);
     }
@@ -150,16 +164,23 @@ export function UserForm({ user, roles, onSubmit, onCancel, loading = false, ope
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
+              Email {!user ? '*' : ''}
             </label>
-            <Input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className={formErrors.email ? 'border-red-500' : ''}
-              placeholder="usuario@ejemplo.com"
-              disabled={!!user} // No permitir cambiar email en edición
-            />
+            {user ? (
+              // En modo edición, mostrar email como solo lectura
+              <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-600">
+                {formData.email || 'No especificado'}
+              </div>
+            ) : (
+              // En modo creación, input editable
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className={formErrors.email ? 'border-red-500' : ''}
+                placeholder="usuario@ejemplo.com"
+              />
+            )}
             {formErrors.email && (
               <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
             )}

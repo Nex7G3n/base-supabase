@@ -17,10 +17,10 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  
+
   // Estado optimista para mostrar los cambios inmediatamente
   const [optimisticUser, setOptimisticUser] = useState(user);
-  
+
   const [formData, setFormData] = useState<UpdateUserRequest>({
     first_name: '',
     last_name: '',
@@ -51,11 +51,11 @@ export default function ProfilePage() {
     if (!user) return;
 
     setLoading(true);
-    
+
     // Guardar el estado anterior para posible rollback
     const previousUser = optimisticUser;
     const previousFormData = { ...formData };
-    
+
     // Actualización optimista: aplicar cambios inmediatamente en la UI
     const updatedUser = {
       ...optimisticUser!,
@@ -66,16 +66,14 @@ export default function ProfilePage() {
     };
     setOptimisticUser(updatedUser);
     setIsEditing(false);
-    
+
     // Mostrar toast de loading
     const loadingToast = toast.loading('Guardando cambios...');
-    
+
     try {
       const response = await UserManagementService.updateUser(user.id, formData);
-      
+
       if (response.success) {
-        // Éxito: mostrar toast de éxito y refrescar datos del servidor
-        toast.success('Perfil actualizado correctamente', { id: loadingToast });
         await refreshUserData();
       } else {
         // Error: hacer rollback y mostrar error
@@ -125,12 +123,12 @@ export default function ProfilePage() {
     }
 
     setUploadingAvatar(true);
-    
+
     // Guardar avatar anterior para rollback
     const previousAvatarUrl = optimisticUser?.avatar_url;
-    
+
     const loadingToast = toast.loading('Subiendo imagen...');
-    
+
     try {
       // Crear nombre único para el archivo
       const fileExt = file.name.split('.').pop();
@@ -139,7 +137,7 @@ export default function ProfilePage() {
 
       // Subir archivo a Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('public')
+        .from('images')
         .upload(filePath, file);
 
       if (uploadError) {
@@ -148,7 +146,7 @@ export default function ProfilePage() {
 
       // Obtener URL pública
       const { data: { publicUrl } } = supabase.storage
-        .from('public')
+        .from('images')
         .getPublicUrl(filePath);
 
       // Actualización optimista del avatar

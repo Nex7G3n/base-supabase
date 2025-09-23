@@ -9,6 +9,7 @@ import { AuthenticationService } from '../services/auth.service';
 import { PermissionService } from '../services/permission.service';
 import { CacheService } from '../services/cache.service';
 import { usePermissionsStore } from './permissions.store';
+import { ToastHelper } from '../../../common/utils/toastHelper';
 
 interface AuthStore {
   // Estado
@@ -56,6 +57,11 @@ export const useAuthStore = create<AuthStore>()(
             const permissionsStore = usePermissionsStore.getState();
             await permissionsStore.loadUserPermissions(user.id, false); // false = no forzar recarga
 
+            ToastHelper.success('Bienvenido de nuevo', {
+              title: 'Inicio de sesión exitoso',
+              description: `Hola, ${user.first_name || user.email}`
+            });
+
             set({
               user,
               loading: false,
@@ -63,6 +69,11 @@ export const useAuthStore = create<AuthStore>()(
             });
             return true;
           } else {
+            ToastHelper.error('Credenciales inválidas', {
+              title: 'Error de autenticación',
+              description: 'Por favor verifica tu email y contraseña'
+            });
+
             set({
               loading: false,
               error: 'Credenciales inválidas'
@@ -70,9 +81,16 @@ export const useAuthStore = create<AuthStore>()(
             return false;
           }
         } catch (error: any) {
+          const errorMessage = error?.message || 'Error inesperado durante el login';
+          
+          ToastHelper.error('Error al iniciar sesión', {
+            title: 'Error',
+            description: errorMessage
+          });
+
           set({
             loading: false,
-            error: error?.message || 'Error inesperado durante el login'
+            error: errorMessage
           });
           return false;
         }
@@ -89,6 +107,11 @@ export const useAuthStore = create<AuthStore>()(
             const permissionsStore = usePermissionsStore.getState();
             await permissionsStore.loadUserPermissions(user.id, false); // false = no forzar recarga
 
+            ToastHelper.success('Cuenta creada exitosamente', {
+              title: 'Registro exitoso',
+              description: 'Tu cuenta ha sido creada. ¡Bienvenido!'
+            });
+
             set({
               user,
               loading: false,
@@ -96,6 +119,11 @@ export const useAuthStore = create<AuthStore>()(
             });
             return true;
           } else {
+            ToastHelper.error('Error al crear la cuenta', {
+              title: 'Error de registro',
+              description: 'No se pudo crear tu cuenta. Inténtalo de nuevo.'
+            });
+
             set({
               loading: false,
               error: 'Error al crear la cuenta'
@@ -103,9 +131,16 @@ export const useAuthStore = create<AuthStore>()(
             return false;
           }
         } catch (error: any) {
+          const errorMessage = error?.message || 'Error inesperado durante el registro';
+          
+          ToastHelper.error('Error al registrarse', {
+            title: 'Error',
+            description: errorMessage
+          });
+
           set({
             loading: false,
-            error: error?.message || 'Error inesperado durante el registro'
+            error: errorMessage
           });
           return false;
         }
@@ -144,12 +179,22 @@ export const useAuthStore = create<AuthStore>()(
             CacheService.invalidateUserCache(user.id);
           }
           
+          ToastHelper.info('Sesión cerrada exitosamente', {
+            title: 'Hasta pronto',
+            description: 'Has cerrado sesión correctamente'
+          });
+
           set({
             user: null,
             loading: false,
             error: null
           });
         } catch (error) {
+          ToastHelper.error('Error al cerrar sesión', {
+            title: 'Error',
+            description: 'Hubo un problema al cerrar la sesión'
+          });
+
           set({
             loading: false,
             error: 'Error durante el logout'

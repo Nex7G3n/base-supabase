@@ -30,10 +30,27 @@ export const createUserColumns = ({ onEdit, onDelete }: UserColumnsProps): Colum
       const user = row.original;
       return (
         <div className="flex items-center">
-          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-            <span className="text-sm font-medium text-gray-700">
-              {user.first_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
-            </span>
+          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center mr-3 overflow-hidden">
+            {user.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={`${user.first_name} ${user.last_name}`}
+                className="h-full w-full object-cover rounded-full"
+                onError={(e) => {
+                  // Si la imagen falla al cargar, mostrar iniciales
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `<span class="text-sm font-medium text-gray-700">${user.first_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}</span>`;
+                  }
+                }}
+              />
+            ) : (
+              <span className="text-sm font-medium text-gray-700">
+                {user.first_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+              </span>
+            )}
           </div>
           <div>
             <div className="font-medium">{user.first_name} {user.last_name}</div>
@@ -63,7 +80,11 @@ export const createUserColumns = ({ onEdit, onDelete }: UserColumnsProps): Colum
     header: "Roles",
     cell: ({ row }) => {
       const user = row.original;
-      const roles = user.user_roles?.map((ur: any) => ur.role?.name).filter(Boolean) || [];
+      const roles = user.user_roles?.map((ur: any) => {
+        // La estructura correcta es ur.roles.name según la consulta del servicio
+        return ur.roles?.name || ur.role?.name;
+      }).filter(Boolean) || [];
+      
       return (
         <div className="flex flex-wrap gap-1">
           {roles.length > 0 ? (

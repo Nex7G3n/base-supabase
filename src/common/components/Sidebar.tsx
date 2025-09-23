@@ -53,6 +53,8 @@ const moduleIcons: Record<string, React.ComponentType<any>> = {
   'empresa': BuildingOfficeIcon,
   'company': BuildingOfficeIcon,
   'organizacion': BuildingOfficeIcon,
+  'clients': UserGroupIcon,
+  'clientes': UserGroupIcon,
 };
 
 const ModuleItem: React.FC<ModuleItemProps> = ({ module, level, isActive, onItemClick }) => {
@@ -275,6 +277,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             updated_at: new Date().toISOString()
           }
         ]
+      },
+      {
+        id: 'clients',
+        name: 'Clientes',
+        description: 'Gestión de clientes',
+        path: '/clients',
+        icon: 'clients',
+        is_active: true,
+        sort_order: 3,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
     ];
   };

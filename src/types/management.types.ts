@@ -147,6 +147,7 @@ export interface UpdateUserRequest {
   phone?: string;
   avatar_url?: string;
   is_active?: boolean;
+  role_ids?: string[];
 }
 
 export interface CreateRoleRequest {
@@ -346,58 +347,12 @@ export const MODULE_NAMES = {
   MODULES: 'modules',
   REPORTS: 'reports',
   SETTINGS: 'settings',
-  TASKS: 'tasks',
   SUPPLIERS: 'suppliers',
-  PURCHASE_ORDERS: 'purchase_orders'
+  PURCHASE_ORDERS: 'purchase_orders',
+  CLIENTS: 'clients'
 } as const;
 
-// ============================================================================
-// TIPOS PARA TAREAS
-// ============================================================================
 
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  due_date?: string;
-  assigned_to?: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  completed_at?: string;
-  created_by_user?: User;
-  assigned_to_user?: User;
-}
-
-export interface CreateTaskRequest {
-  title: string;
-  description?: string;
-  status?: Task['status'];
-  priority?: Task['priority'];
-  due_date?: string;
-  assigned_to?: string;
-}
-
-export interface UpdateTaskRequest {
-  title?: string;
-  description?: string;
-  status?: Task['status'];
-  priority?: Task['priority'];
-  due_date?: string;
-  assigned_to?: string;
-}
-
-export interface TaskFilters {
-  search?: string;
-  status?: Task['status'];
-  priority?: Task['priority'];
-  assigned_to?: string;
-  created_by?: string;
-  due_date_from?: string;
-  due_date_to?: string;
-}
 
 // ============================================================================
 // TIPOS PARA PROVEEDORES
@@ -571,4 +526,41 @@ export interface PurchaseReportRequest {
   filters: PurchaseReportFilters;
   group_by?: 'supplier' | 'month' | 'status';
   include_items?: boolean;
+}
+
+// ============================================================================
+// TIPOS PARA CLIENTES
+// ============================================================================
+
+export interface Client {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  tax_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateClientRequest {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  tax_id?: string;
+}
+
+export interface UpdateClientRequest {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  tax_id?: string;
+}
+
+export interface ClientFilters {
+  search?: string;
+  created_from?: string;
+  created_to?: string;
 }

@@ -31,12 +31,6 @@ const navigationItems = [
     permissions: ['purchase_orders_read']
   },
   {
-    name: 'Tareas',
-    href: '/tasks',
-    icon: 'list',
-    permissions: ['tasks_read']
-  },
-  {
     name: 'Roles',
     href: '/roles',
     icon: 'shield',
