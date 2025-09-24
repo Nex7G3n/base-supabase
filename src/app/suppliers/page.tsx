@@ -49,25 +49,19 @@ export default function SuppliersPage() {
 
   useEffect(() => {
     loadSuppliers();
-    loadStats();
-  }, [currentPage]);
+  }, [currentPage, searchTerm]);
 
   useEffect(() => {
-    loadSuppliers();
-  }, [searchTerm]);
+    loadStats();
+  }, []);
 
   const loadSuppliers = async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await SupplierManagementService.getSuppliers(currentPage, 10);
+      const result = await SupplierManagementService.getSuppliers(currentPage, 10, { search: searchTerm });
       setSuppliers(result.data);
       setTotalPages(result.totalPages);
-      
-      // Actualizar stats después de cargar suppliers
-      setTimeout(() => {
-        loadStats();
-      }, 100);
     } catch (err) {
       setError('Error al cargar proveedores');
       console.error(err);
@@ -78,24 +72,15 @@ export default function SuppliersPage() {
 
   const loadStats = async () => {
     try {
-      const totalSuppliers = suppliers.length;
-      const activeSuppliers = suppliers.filter(supplier => supplier.is_active).length;
-      const suppliersWithEmail = suppliers.filter(supplier => supplier.email).length;
-      const recentSuppliers = suppliers.filter(supplier => {
-        const supplierDate = new Date(supplier.created_at);
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return supplierDate > thirtyDaysAgo;
-      }).length;
-
-      setStats({
-        total: totalSuppliers,
-        active: activeSuppliers,
-        withEmail: suppliersWithEmail,
-        recentlyAdded: recentSuppliers
-      });
+      const statsData = await SupplierManagementService.getStats();
+      setStats(statsData);
     } catch (error) {
       console.error('Error al cargar estadísticas:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las estadísticas.",
+        variant: "error",
+      });
     }
   };
 
@@ -147,7 +132,7 @@ export default function SuppliersPage() {
     });
   };
 
-  const handleCreateSupplier = async (supplierData: any) => {
+  const handleCreateSupplier = async (supplierData: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>) => {
     setLoading(true);
     try {
       const response = await SupplierManagementService.createSupplier(supplierData);
@@ -166,7 +151,7 @@ export default function SuppliersPage() {
           variant: "error",
         });
       }
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Error al crear proveedor",
@@ -177,7 +162,7 @@ export default function SuppliersPage() {
     }
   };
 
-  const handleUpdateSupplier = async (supplierId: string, supplierData: any) => {
+  const handleUpdateSupplier = async (supplierId: string, supplierData: Partial<Omit<Supplier, 'id' | 'created_at' | 'updated_at'>>) => {
     setLoading(true);
     try {
       const response = await SupplierManagementService.updateSupplier(supplierId, supplierData);
@@ -196,7 +181,7 @@ export default function SuppliersPage() {
           variant: "error",
         });
       }
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Error al actualizar proveedor",
@@ -231,7 +216,7 @@ export default function SuppliersPage() {
           variant: "error",
         });
       }
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Error al eliminar proveedor",
@@ -248,7 +233,7 @@ export default function SuppliersPage() {
     onDelete: handleDeleteSupplier
   });
   const columns = allColumns.filter(column => {
-    const accessorKey = (column as any).accessorKey || (column as any).id;
+    const accessorKey = (column as { accessorKey?: string; id?: string }).accessorKey || (column as { accessorKey?: string; id?: string }).id;
     if (accessorKey === 'actions') return visibleColumns.actions;
     return visibleColumns[accessorKey as keyof typeof visibleColumns] ?? true;
   });

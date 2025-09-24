@@ -316,4 +316,42 @@ export class SupplierManagementService {
       throw error;
     }
   }
+
+  /**
+   * Obtener estadísticas de proveedores
+   */
+  static async getStats() {
+    try {
+      const { count: total } = await supabase
+        .from('suppliers')
+        .select('*', { count: 'exact', head: true });
+
+      const { count: active } = await supabase
+        .from('suppliers')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      const { count: withEmail } = await supabase
+        .from('suppliers')
+        .select('*', { count: 'exact', head: true })
+        .not('email', 'is', null);
+
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const { count: recentlyAdded } = await supabase
+        .from('suppliers')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', thirtyDaysAgo.toISOString());
+
+      return {
+        total: total || 0,
+        active: active || 0,
+        withEmail: withEmail || 0,
+        recentlyAdded: recentlyAdded || 0
+      };
+    } catch (error) {
+      console.error('Error en getStats:', error);
+      throw error;
+    }
+  }
 }
