@@ -23,16 +23,17 @@ const ConditionalLayout: React.FC<ConditionalLayoutProps> = ({ children }) => {
     debug
   } = useAuthSimple();
 
-  // Log para debugging
+  // Log para debugging (solo cambios importantes)
   useEffect(() => {
-    console.log('🔄 ConditionalLayout - Estado:', {
-      user: !!user,
-      loading,
-      isInitialized,
-      isAuthenticated,
-      debug
-    });
-  }, [user, loading, isInitialized, isAuthenticated, debug]);
+    if (!isInitialized && !loading) {
+      console.log('🔄 ConditionalLayout - Inicializando...');
+    } else if (isInitialized && !loading) {
+      console.log('🔄 ConditionalLayout - Inicializado:', {
+        user: !!user,
+        isAuthenticated
+      });
+    }
+  }, [isInitialized, loading, user, isAuthenticated]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DataTable } from "@/components/ui/data-table";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ClientForm } from "@/components/forms/ClientForm";
+import { ProtectedRoute, ProtectedComponent } from '../../components/ProtectedComponent';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,6 @@ import { Client, ClientFilters } from "@/types/management.types";
 import { ClientsService } from "@/services/management/clients.service";
 import { useToast } from "@/common/hooks/useToast";
 import { useAuthSimple } from "@/auth/application/hooks/useAuthSimple";
-import { ProtectedComponent } from "@/components/ProtectedComponent";
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -211,8 +211,9 @@ export default function ClientsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <ProtectedRoute permissions={['clients_read']}>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -408,7 +409,8 @@ export default function ClientsPage() {
         onCancel={() => setClientToDelete(null)}
         variant="destructive"
       />
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePermissions } from '../common/hooks/useManagement';
+import { useAuthState } from '../auth';
 
 interface ProtectedComponentProps {
   children: React.ReactNode;
@@ -61,20 +63,37 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
   children,
   permissions = [],
-  redirectTo = '/unauthorized',
+  redirectTo = '/login',
   requireAll = false
 }: ProtectedRouteProps) {
-  const { hasPermission, hasAnyPermission, hasAllPermissions, loading } = usePermissions();
+  const router = useRouter();
+  const { user, loading: authLoading, isAuthenticated, isInitialized } = useAuthState();
+  const { hasPermission, hasAnyPermission, hasAllPermissions, loading: permissionsLoading } = usePermissions();
 
-  if (loading) {
+  const loading = authLoading || permissionsLoading;
+
+  // Redirigir a login si no está autenticado después de inicializar
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated && !authLoading) {
+      router.replace(redirectTo);
+    }
+  }, [isInitialized, isAuthenticated, authLoading, router, redirectTo]);
+
+  // Mostrar loading mientras se inicializa o verifica autenticación
+  if (!isInitialized || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verificando permisos...</p>
+          <p className="mt-4 text-gray-600">Verificando autenticación...</p>
         </div>
       </div>
     );
+  }
+
+  // Si no está autenticado, no mostrar nada (la redirección se maneja en useEffect)
+  if (!isAuthenticated) {
+    return null;
   }
 
   // Si no se especifican permisos, permitir acceso

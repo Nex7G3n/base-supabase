@@ -179,15 +179,13 @@ export const useAuthStore = create<AuthStore>()(
             CacheService.invalidateUserCache(user.id);
           }
           
-          ToastHelper.info('Sesión cerrada exitosamente', {
-            title: 'Hasta pronto',
-            description: 'Has cerrado sesión correctamente'
-          });
+          // No mostrar toast aquí para evitar duplicados - se maneja en la UI
 
           set({
             user: null,
             loading: false,
-            error: null
+            error: null,
+            isInitialized: false // Reset initialization state
           });
         } catch (error) {
           ToastHelper.error('Error al cerrar sesión', {

@@ -1,19 +1,38 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthActions } from "../../auth";
 
 export default function LogoutPage() {
   const router = useRouter();
   const { logout } = useAuthActions();
+  const hasLoggedOut = useRef(false);
 
   useEffect(() => {
+    if (hasLoggedOut.current) return; // Prevent multiple executions
+    
     async function handleLogout() {
-      await logout();
-      router.replace("/");
+      hasLoggedOut.current = true;
+      try {
+        await logout();
+        // Redirect to home page after logout
+        router.replace("/");
+      } catch (error) {
+        console.error("Logout error:", error);
+        // Even if logout fails, redirect to home
+        router.replace("/");
+      }
     }
+    
     handleLogout();
-  }, [logout, router]);
+
+    // Timeout de seguridad para asegurar redirección
+    const timeoutId = setTimeout(() => {
+      router.replace("/");
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, []); // Empty dependency array to run only once
 
   return (
     <div className="page-container">

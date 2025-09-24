@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useAuthStore } from '../store/auth.store';
 import { usePermissionsStore } from '../store/permissions.store';
 
@@ -8,6 +8,8 @@ import { usePermissionsStore } from '../store/permissions.store';
  * Hook simplificado para evitar loops infinitos
  */
 export const useAuthSimple = () => {
+  const initializationRef = useRef(false);
+
   // Solo el estado básico del auth store
   const {
     user,
@@ -40,11 +42,12 @@ export const useAuthSimple = () => {
 
   // Inicializar autenticación una sola vez
   useEffect(() => {
-    if (!isInitialized && !isCheckingAuth) {
+    if (!isInitialized && !isCheckingAuth && !initializationRef.current) {
       console.log('🔵 Inicializando autenticación...');
+      initializationRef.current = true;
       checkAuth();
     }
-  }, [isInitialized, isCheckingAuth, checkAuth]);
+  }, [isInitialized, isCheckingAuth]); // Removido checkAuth de las dependencias
 
   // Cargar permisos cuando el usuario esté disponible
   useEffect(() => {
@@ -52,7 +55,7 @@ export const useAuthSimple = () => {
       console.log('🟢 Cargando permisos para usuario:', user.id);
       loadUserPermissions(user.id);
     }
-  }, [user, permissionsLoaded, permissionsLoading, loadUserPermissions]);
+  }, [user, permissionsLoaded, permissionsLoading]); // Removido loadUserPermissions de las dependencias
 
   // Limpiar permisos cuando no hay usuario
   useEffect(() => {
@@ -60,7 +63,7 @@ export const useAuthSimple = () => {
       console.log('🔴 Limpiando permisos - no hay usuario');
       clearPermissions();
     }
-  }, [user, permissionsLoaded, clearPermissions]);
+  }, [user, permissionsLoaded]); // Removido clearPermissions de las dependencias
 
   // Estados combinados
   const isAuthenticated = !!user;
