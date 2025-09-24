@@ -4,269 +4,316 @@ import React, { useState } from 'react';
 import { ProtectedRoute } from '../../components/ProtectedComponent';
 import { useAuthState } from '../../auth';
 import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
+import { User, Shield, Settings, Bell, Database, Monitor, Palette, Globe } from 'lucide-react';
+import { useToast } from '../../common/hooks/useToast';
 
 export default function SettingsPage() {
   const { user } = useAuthState();
-  const [activeTab, setActiveTab] = useState('profile');
+  const { toast } = useToast();
+  
+  // Estados para las configuraciones
+  const [profileData, setProfileData] = useState({
+    firstName: user?.first_name || '',
+    lastName: user?.last_name || '',
+    email: user?.email || '',
+    phone: ''
+  });
+  
+  const [systemPreferences, setSystemPreferences] = useState({
+    theme: 'light',
+    language: 'es',
+    timezone: 'America/Lima',
+    notifications: true
+  });
 
-  const tabs = [
-    { id: 'profile', name: 'Perfil', icon: 'user' },
-    { id: 'security', name: 'Seguridad', icon: 'shield' },
-    { id: 'preferences', name: 'Preferencias', icon: 'settings' },
-    { id: 'notifications', name: 'Notificaciones', icon: 'bell' }
-  ];
+  // Stats para las cards
+  const stats = {
+    totalUsers: 125,
+    activeConnections: 3,
+    systemHealth: 98,
+    dataBackup: 'Actualizado'
+  };
+
+  // Handlers
+  const handleProfileSave = () => {
+    toast({
+      title: "Perfil actualizado",
+      description: "Los cambios han sido guardados correctamente",
+      variant: "success"
+    });
+  };
+
+  const handleSystemSave = () => {
+    toast({
+      title: "Configuración guardada",
+      description: "Las preferencias del sistema han sido actualizadas",
+      variant: "success"
+    });
+  };
 
   return (
     <ProtectedRoute permissions={['settings_read']}>
-      <div className="page-container">
-        <div className="content-wrapper">
-          <div className="page-header">
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          
+          {/* Header Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="page-title">Configuración</h1>
-              <p className="page-description">
-                Gestiona tu perfil, seguridad y preferencias del sistema
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
+              <p className="mt-2 text-lg text-gray-600">Gestiona tu perfil, seguridad y preferencias del sistema</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="bg-white">
+                <Settings className="w-4 h-4 mr-2" />
+                Exportar Config
+              </Button>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                Aplicar Cambios
+              </Button>
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar de navegación */}
-            <div className="lg:w-64">
-              <div className="base-card">
-                <nav className="space-y-2">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                        activeTab === tab.id
-                          ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {tab.icon === 'user' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        )}
-                        {tab.icon === 'shield' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        )}
-                        {tab.icon === 'settings' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        )}
-                        {tab.icon === 'bell' && (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4.797-5.876l-.002-.015A2 2 0 0012 5c0-.598-.265-1.172-.726-1.566A2 2 0 0010 3H8.5a2 2 0 00-2 2v0c0 .898.374 1.75 1.037 2.35A6.002 6.002 0 006 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        )}
-                      </svg>
-                      {tab.name}
-                    </button>
-                  ))}
-                </nav>
+        {/* Stats Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-3 bg-blue-500 rounded-lg text-white mr-4">
+                  <User className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-800">
+                    {user?.first_name || user?.email?.split('@')[0] || 'Usuario'}
+                  </div>
+                  <p className="text-sm text-blue-600">Usuario Actual</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-3 bg-green-500 rounded-lg text-white mr-4">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-800">Activo</div>
+                  <p className="text-sm text-green-600">Estado de Cuenta</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-3 bg-purple-500 rounded-lg text-white mr-4">
+                  <Settings className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-800">{user?.role || 'Usuario'}</div>
+                  <p className="text-sm text-purple-600">Rol del Sistema</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-3 bg-orange-500 rounded-lg text-white mr-4">
+                  <Bell className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-orange-800">Activas</div>
+                  <p className="text-sm text-orange-600">Notificaciones</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Profile Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Perfil de Usuario
+            </CardTitle>
+            <CardDescription>
+              Información básica de tu cuenta
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={user?.email || ''}
+                  disabled
+                  className="bg-gray-50"
+                />
+                <p className="text-xs text-gray-500 mt-1">El email no se puede modificar</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre
+                </label>
+                <Input
+                  type="text"
+                  value={user?.first_name || ''}
+                  placeholder="Tu nombre"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Apellido
+                </label>
+                <Input
+                  type="text"
+                  value={user?.last_name || ''}
+                  placeholder="Tu apellido"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estado
+                </label>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                    Activo
+                  </span>
+                </div>
               </div>
             </div>
-
-            {/* Contenido principal */}
-            <div className="flex-1">
-              {activeTab === 'profile' && (
-                <div className="base-card">
-                  <div className="flex items-center mb-6">
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Información del Perfil</h3>
-                      <p className="text-sm text-gray-500">Actualiza tu información personal</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email
-                        </label>
-                        <Input
-                          type="email"
-                          value={user?.email || ''}
-                          disabled
-                          className="bg-gray-50"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">El email no se puede modificar</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Nombre
-                        </label>
-                        <Input
-                          type="text"
-                          value={user?.first_name || ''}
-                          placeholder="Tu nombre"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Apellido
-                        </label>
-                        <Input
-                          type="text"
-                          value={user?.last_name || ''}
-                          placeholder="Tu apellido"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Estado
-                        </label>
-                        <div className="flex items-center">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 8 8">
-                              <circle cx={4} cy={4} r={3} />
-                            </svg>
-                            Activo
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <Button className="bg-blue-600 hover:bg-blue-700">
-                        Guardar Cambios
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'security' && (
-                <div className="base-card">
-                  <div className="flex items-center mb-6">
-                    <div className="p-2 bg-red-100 rounded-lg mr-3">
-                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Seguridad</h3>
-                      <p className="text-sm text-gray-500">Gestiona tu contraseña y seguridad</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-4">Cambiar Contraseña</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Contraseña Actual
-                          </label>
-                          <Input type="password" placeholder="Ingresa tu contraseña actual" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Nueva Contraseña
-                          </label>
-                          <Input type="password" placeholder="Ingresa tu nueva contraseña" />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Confirmar Nueva Contraseña
-                          </label>
-                          <Input type="password" placeholder="Confirma tu nueva contraseña" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex justify-end">
-                      <Button className="bg-red-600 hover:bg-red-700">
-                        Actualizar Contraseña
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'preferences' && (
-                <div className="base-card">
-                  <div className="flex items-center mb-6">
-                    <div className="p-2 bg-purple-100 rounded-lg mr-3">
-                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Preferencias</h3>
-                      <p className="text-sm text-gray-500">Personaliza tu experiencia en el sistema</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">Tema oscuro</h4>
-                        <p className="text-sm text-gray-500">Cambiar apariencia del sistema</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">Sonidos del sistema</h4>
-                        <p className="text-sm text-gray-500">Reproducir sonidos para notificaciones</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'notifications' && (
-                <div className="base-card">
-                  <div className="flex items-center mb-6">
-                    <div className="p-2 bg-yellow-100 rounded-lg mr-3">
-                      <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4.797-5.876l-.002-.015A2 2 0 0012 5c0-.598-.265-1.172-.726-1.566A2 2 0 0010 3H8.5a2 2 0 00-2 2v0c0 .898.374 1.75 1.037 2.35A6.002 6.002 0 006 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Notificaciones</h3>
-                      <p className="text-sm text-gray-500">Configura cómo recibir las notificaciones</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">Notificaciones por email</h4>
-                        <p className="text-sm text-gray-500">Recibir actualizaciones importantes por correo</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900">Notificaciones push</h4>
-                        <p className="text-sm text-gray-500">Notificaciones en tiempo real en el navegador</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex justify-end">
+              <Button 
+                onClick={handleProfileSave}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Guardar Cambios
+              </Button>
             </div>
-          </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Seguridad
+            </CardTitle>
+            <CardDescription>
+              Configuración de seguridad y contraseña
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Contraseña Actual
+                </label>
+                <Input type="password" placeholder="Ingresa tu contraseña actual" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nueva Contraseña
+                </label>
+                <Input type="password" placeholder="Ingresa tu nueva contraseña" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirmar Nueva Contraseña
+                </label>
+                <Input type="password" placeholder="Confirma tu nueva contraseña" />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Actualizar Contraseña
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preferences Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Preferencias
+            </CardTitle>
+            <CardDescription>
+              Configuración de la interfaz y comportamiento
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Tema oscuro</h4>
+                <p className="text-sm text-gray-500">Cambiar apariencia del sistema</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Sonidos del sistema</h4>
+                <p className="text-sm text-gray-500">Reproducir sonidos para notificaciones</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Notifications Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notificaciones
+            </CardTitle>
+            <CardDescription>
+              Gestiona tus preferencias de notificaciones
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Notificaciones por email</h4>
+                <p className="text-sm text-gray-500">Recibir actualizaciones importantes por correo</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900">Notificaciones push</h4>
+                <p className="text-sm text-gray-500">Notificaciones en tiempo real en el navegador</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+          </CardContent>
+        </Card>
+        
         </div>
       </div>
     </ProtectedRoute>
